@@ -86,11 +86,11 @@ public class ChessPiece {
                 ChessPiece piece = board.getPiece(newPosition);
                 if (piece == null) {
                     //add to moves if empty
-                    moves.add(new ChessMove(position, newPosition));
+                    moves.add(new ChessMove(position, newPosition,null));
                 }
                 else if(piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
                     //add to moves if killing
-                    moves.add(new ChessMove(position, newPosition));
+                    moves.add(new ChessMove(position, newPosition, null));
                 }
             }
         }
@@ -105,7 +105,30 @@ public class ChessPiece {
     private Collection<ChessMove> BishopMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
 
+        int[][] directions = {{1, 1}, {1, -1}, {-1,1},{-1,-1}};
 
+        for (int[] direction: directions){
+            int newRow = position.getRow() + direction[0];
+            int newCol = position.getColumn() + direction[1];
+            while(true){
+                newRow += direction[0];
+                newCol += direction[1];
+                ChessPosition newPosition = new ChessPosition(newRow,newCol);
+                if (newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8){
+                    break;
+                }
+                ChessPiece piece = board.getPiece(newPosition);
+                if (piece ==null){
+                    moves.add(new ChessMove(position, newPosition, null));
+                }
+                else if (piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                    moves.add(new ChessMove(position, newPosition, null));
+                }
+                else {
+                    break;
+                }
+            }
+        }
         return moves;
     }
     private Collection<ChessMove> KnightMoves(ChessBoard board, ChessPosition position) {
@@ -124,11 +147,11 @@ public class ChessPiece {
                 ChessPiece piece = board.getPiece(newPosition);
                 if (piece == null) {
                     //add to moves if empty
-                    moves.add(new ChessMove(position, newPosition));
+                    moves.add(new ChessMove(position, newPosition, null));
                 }
                 else if(piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
                     //add to moves if killing
-                    moves.add(new ChessMove(position, newPosition));
+                    moves.add(new ChessMove(position, newPosition,null));
                 }
             }
         }
@@ -151,10 +174,10 @@ public class ChessPiece {
                 }
                 ChessPiece piece = board.getPiece(newPosition);
                 if (piece ==null){
-                    moves.add(new ChessMove(position, newPosition));
+                    moves.add(new ChessMove(position, newPosition, null));
                 }
                 else if (piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
-                    moves.add(new ChessMove(position, newPosition));
+                    moves.add(new ChessMove(position, newPosition, null));
                 }
                 else {
                     break;
