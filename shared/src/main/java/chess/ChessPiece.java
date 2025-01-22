@@ -71,7 +71,29 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> KingMoves(ChessBoard board, ChessPosition position) {
+        int row = position.getRow();
+        int column = position.getColumn();
         Collection<ChessMove> moves = new ArrayList<>();
+
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1,1}, {1,-1}, {-1,1},{-1,-1}};
+
+        for (int[] direction: directions){
+            int newRow = row + direction[0];
+            int newCol = column + direction[1];
+            ChessPosition newPosition = new ChessPosition(newRow,newCol);
+
+            if (newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8){
+                ChessPiece piece = board.getPiece(newPosition);
+                if (piece == null) {
+                    //add to moves if empty
+                    moves.add(new ChessMove(position, newPosition));
+                }
+                else if(piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                    //add to moves if killing
+                    moves.add(new ChessMove(position, newPosition));
+                }
+            }
+        }
         return moves;
     }
     private Collection<ChessMove> QueenMoves(ChessBoard board, ChessPosition position) {
@@ -82,14 +104,63 @@ public class ChessPiece {
     }
     private Collection<ChessMove> BishopMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
+
+
         return moves;
     }
     private Collection<ChessMove> KnightMoves(ChessBoard board, ChessPosition position) {
+        int row = position.getRow();
+        int column = position.getColumn();
         Collection<ChessMove> moves = new ArrayList<>();
+
+        int[][] directions = {{1, 2}, {2, 1}, {-1, -2}, {-2, -1}, {1,-2}, {-2,1}, {-1,2},{2,-1}};
+
+        for (int[] direction: directions){
+            int newRow = row + direction[0];
+            int newCol = column + direction[1];
+            ChessPosition newPosition = new ChessPosition(newRow,newCol);
+
+            if (newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8){
+                ChessPiece piece = board.getPiece(newPosition);
+                if (piece == null) {
+                    //add to moves if empty
+                    moves.add(new ChessMove(position, newPosition));
+                }
+                else if(piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                    //add to moves if killing
+                    moves.add(new ChessMove(position, newPosition));
+                }
+            }
+        }
         return moves;
     }
     private Collection<ChessMove> RookMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
+
+        int[][] directions = {{0, 1}, {0, -1}, {1,0},{-1,0}};
+
+        for (int[] direction: directions){
+            int newRow = position.getRow() + direction[0];
+            int newCol = position.getColumn() + direction[1];
+            while(true){
+                newRow += direction[0];
+                newCol += direction[1];
+                ChessPosition newPosition = new ChessPosition(newRow,newCol);
+                if (newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8){
+                    break;
+                }
+                ChessPiece piece = board.getPiece(newPosition);
+                if (piece ==null){
+                    moves.add(new ChessMove(position, newPosition));
+                }
+                else if (piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                    moves.add(new ChessMove(position, newPosition));
+                }
+                else {
+                    break;
+                }
+            }
+        }
         return moves;
     }
     private Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition position) {
