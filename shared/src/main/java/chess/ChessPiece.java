@@ -188,6 +188,9 @@ public class ChessPiece {
     }
     private Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
+        if(board.getPiece(position).getTeamColor() == ChessGame.TeamColor.WHITE){
+            
+        }
         return moves;
     }
 }
