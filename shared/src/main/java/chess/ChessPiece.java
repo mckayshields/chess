@@ -56,26 +56,30 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
         if (type == ChessPiece.PieceType.KING) {
-            moves.addAll(KingMoves(board,myPosition));
+            int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1,1}, {1,-1}, {-1,1},{-1,-1}};
+            moves.addAll(FixedDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.QUEEN) {
-            moves.addAll(QueenMoves(board,myPosition));
+            int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1,1}, {1,-1}, {-1,1},{-1,-1}};
+            moves.addAll(VariableDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.BISHOP) {
-            moves.addAll(BishopMoves(board,myPosition));
+            int[][] directions = {{1, 1}, {1, -1}, {-1,1}, {-1,-1}};
+            moves.addAll(VariableDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.KNIGHT) {
-            moves.addAll(KnightMoves(board,myPosition));
+            int[][] directions = {{1, 2}, {2, 1}, {-1, -2}, {-2, -1}, {1,-2}, {-2,1}, {-1,2},{2,-1}};
+            moves.addAll(FixedDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.ROOK) {
-            moves.addAll(RookMoves(board,myPosition));
+            int[][] directions = {{0, 1}, {0, -1}, {1,0},{-1,0}};
+            moves.addAll(VariableDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.PAWN) {
             moves.addAll(PawnMoves(board,myPosition));
         }
         return moves;
     }
 
-    private Collection<ChessMove> KingMoves(ChessBoard board, ChessPosition position) {
+    private Collection<ChessMove> FixedDistance(ChessBoard board, ChessPosition position, int[][] directions) {
         int row = position.getRow();
         int column = position.getColumn();
         Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1,1}, {1,-1}, {-1,1},{-1,-1}};
         for (int[] direction: directions){
             int newRow = row + direction[0];
             int newCol = column + direction[1];
@@ -95,16 +99,9 @@ public class ChessPiece {
         }
         return moves;
     }
-    private Collection<ChessMove> QueenMoves(ChessBoard board, ChessPosition position) {
-        //queen is just rook and bishop combined
+
+    private Collection<ChessMove> VariableDistance(ChessBoard board, ChessPosition position, int[][] directions) {
         Collection<ChessMove> moves = new ArrayList<>();
-        moves.addAll(BishopMoves(board, position));
-        moves.addAll(RookMoves(board, position));
-        return moves;
-    }
-    private Collection<ChessMove> BishopMoves(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{1, 1}, {1, -1}, {-1,1}, {-1,-1}};
         for (int[] direction: directions){
             int newRow = position.getRow();
             int newCol = position.getColumn();
@@ -134,66 +131,7 @@ public class ChessPiece {
         }
         return moves;
     }
-    private Collection<ChessMove> KnightMoves(ChessBoard board, ChessPosition position) {
-        int row = position.getRow();
-        int column = position.getColumn();
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{1, 2}, {2, 1}, {-1, -2}, {-2, -1}, {1,-2}, {-2,1}, {-1,2},{2,-1}};
-        for (int[] direction: directions){
-            int newRow = row + direction[0];
-            int newCol = column + direction[1];
-            ChessPosition newPosition = new ChessPosition(newRow,newCol);
-            //off the board
-            if (newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8){
-                ChessPiece piece = board.getPiece(newPosition);
-                if (piece == null) {
-                    //add to moves if empty
-                    moves.add(new ChessMove(position, newPosition, null));
-                }
-                else if(piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
-                    //add to moves if killing
-                    moves.add(new ChessMove(position, newPosition,null));
-                }
-            }
-        }
-        return moves;
-    }
-    private Collection<ChessMove> RookMoves(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> moves = new ArrayList<>();
 
-        // rooks four directions
-        int[][] directions = {{0, 1}, {0, -1}, {1,0},{-1,0}};
-
-        for (int[] direction: directions){
-            int newRow = position.getRow();
-            int newCol = position.getColumn();
-            while(true){
-                // get new position
-                newRow += direction[0];
-                newCol += direction[1];
-                ChessPosition newPosition = new ChessPosition(newRow,newCol);
-                // off the board
-                if (newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8){
-                    break;
-                }
-                // empty space
-                ChessPiece piece = board.getPiece(newPosition);
-                if (piece ==null){
-                    moves.add(new ChessMove(position, newPosition, null));
-                }
-                // enemy space
-                else if (piece.getTeamColor() != board.getPiece(position).getTeamColor()) {
-                    moves.add(new ChessMove(position, newPosition, null));
-                    break;
-                }
-                // friendly space
-                else {
-                    break;
-                }
-            }
-        }
-        return moves;
-    }
     private Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
 
