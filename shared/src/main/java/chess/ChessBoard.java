@@ -11,10 +11,10 @@ import java.util.Map;
  */
 public class ChessBoard {
 
-    private final Map<ChessPosition, ChessPiece> chessboard;
+    private final ChessPiece[][] chessboard;
 
     public ChessBoard() {
-        this.chessboard = new HashMap<ChessPosition, ChessPiece>();
+        this.chessboard = new ChessPiece[8][8];
     }
 
     /**
@@ -24,7 +24,9 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        chessboard.put(position, piece);
+        int row = position.getRow();
+        int col = position.getColumn();
+        chessboard[row-1][col-1] = piece;
     }
 
     /**
@@ -35,7 +37,9 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return chessboard.get(position);
+        int row = position.getRow();
+        int col = position.getColumn();
+        return chessboard[row -1][col -1];
     }
 
     /**
@@ -44,7 +48,11 @@ public class ChessBoard {
      */
     public void resetBoard() {
         //clear all old pieces
-        chessboard.clear();
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                chessboard[row][col] = null;
+            }
+        }
 
         // add pawns
         for (int col = 1; col <= 8; col++) {
