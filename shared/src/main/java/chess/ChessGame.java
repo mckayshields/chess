@@ -112,9 +112,19 @@ public class ChessGame {
         else{
             board.addPiece(startPosition, new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.PAWN));
         }
-        board.addPiece(endPosition, null);
-        if (killedPiece.getPieceType() == null){
+
+        if (killedPiece != null){
             board.addPiece(endPosition, new ChessPiece(killedPiece.getTeamColor(), killedPiece.getPieceType()));
+        }
+        else{
+            board.addPiece(endPosition, null);
+        }
+
+        if (currentTeam == TeamColor.WHITE){
+            currentTeam = TeamColor.BLACK;
+        }
+        else{
+            currentTeam = TeamColor.WHITE;
         }
 
     }
@@ -175,14 +185,29 @@ public class ChessGame {
                     Collection<ChessMove> moves = piece.pieceMoves(board, position);
                     for (ChessMove move: moves){
                         ChessPiece killedPiece = board.getPiece(move.getEndPosition());
-                        try{makeMove(move);}
+                        try{
+                            makeMove(move);
+                            System.out.println(move.getStartPosition().getRow());
+                            System.out.println(move.getStartPosition().getColumn());
+                            System.out.println(move.getEndPosition().getRow());
+                            System.out.println(move.getEndPosition().getColumn());
+                            undoMove(move, killedPiece);
+                        }
                         catch(InvalidMoveException e){
-                            System.out.println("An error has occurred.");
+                            System.out.println(move.getStartPosition().getRow());
+                            System.out.println(move.getStartPosition().getColumn());
+                            System.out.println(move.getEndPosition().getRow());
+                            System.out.println(move.getEndPosition().getColumn());
+                            System.out.println(e.getMessage());
                         }
                         if(!isInCheck(teamColor)){
+                            System.out.println(move.getStartPosition().getRow());
+                            System.out.println(move.getStartPosition().getColumn());
+                            System.out.println(move.getEndPosition().getRow());
+                            System.out.println(move.getEndPosition().getColumn());
                             return false;
                         }
-                        undoMove(move, killedPiece);
+
                     }
                 }
             }
