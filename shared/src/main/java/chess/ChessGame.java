@@ -101,6 +101,24 @@ public class ChessGame {
         }
     }
 
+    public void undoMove(ChessMove move, ChessPiece killedPiece){
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece piece = board.getPiece(endPosition);
+        ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
+        if (promotionPiece == null){
+            board.addPiece(startPosition, piece);
+        }
+        else{
+            board.addPiece(startPosition, new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.PAWN));
+        }
+        board.addPiece(endPosition, null);
+        if (killedPiece.getPieceType() == null){
+            board.addPiece(endPosition, new ChessPiece(killedPiece.getTeamColor(), killedPiece.getPieceType()));
+        }
+
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -146,22 +164,30 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        for (int row = 1; row <=8; row++) {
-            for (int col = 1; col <= 8; col++) {
+        if(!isInCheck(teamColor)){
+            return false;
+        }
+        for(int row = 1; row<=8; row ++){
+            for(int col=1; col<=8; col++){
                 ChessPosition position = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(position);
-                ChessPosition neighbor = new ChessPosition(row+1, col-1)
-                if (piece.getTeamColor() == teamColor){
-                    if (piece.getTeamColor() == currentTeam){
-                        Collection<ChessMove> moves = piece.pieceMoves(board, position);
-                        for (ChessMove move: moves){
-                            return true;
+                if (piece != null && piece.getTeamColor() != teamColor){
+                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                    for (ChessMove move: moves){
+                        ChessPiece killedPiece = board.getPiece(move.getEndPosition());
+                        try{makeMove(move);}
+                        catch(InvalidMoveException e){
+                            System.out.println("An error has occurred.");
                         }
+                        if(!isInCheck(teamColor)){
+                            return false;
+                        }
+                        undoMove(move, killedPiece);
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
 
     /**
