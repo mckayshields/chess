@@ -80,14 +80,18 @@ public class ChessGame {
             throw new InvalidMoveException("It is not your turn.");
         }
 
-        if (move.getPromotionPiece() == null){
+        ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
+        if (promotionPiece == null){
             board.addPiece(endPosition, piece);
         }
         else{
-            board.addPiece(endPosition, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+            board.addPiece(endPosition, new ChessPiece(piece.getTeamColor(), promotionPiece));
         }
-
         board.addPiece(startPosition, null);
+
+        if (isInCheck(currentTeam)){
+            throw new InvalidMoveException("You are in check!");
+        }
 
         if (currentTeam == TeamColor.WHITE){
             currentTeam = TeamColor.BLACK;
@@ -104,6 +108,44 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+
+        ChessPosition kingPosition = null;
+
+        for (int row = 1; row <=8; row++){
+            for (int col = 1; col <=8; col++){
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor){
+                    kingPosition = position;
+                    System.out.println("King");
+                    System.out.println(kingPosition.getRow());
+                    System.out.println(kingPosition.getColumn());
+                    break;
+                }
+            }
+        }
+
+        for (int row = 1; row <=8; row++){
+            for (int col = 1; col <=8; col++){
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() != teamColor){
+                    System.out.println("Enemy");
+                    System.out.println(position.getRow());
+                    System.out.println(position.getColumn());
+                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                    for (ChessMove move: moves){
+                        System.out.println("Move");
+                        System.out.println(move.getEndPosition().getRow());
+                        System.out.println(move.getEndPosition().getColumn());
+                        if (move.getEndPosition().equals(kingPosition)){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
