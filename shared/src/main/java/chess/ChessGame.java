@@ -187,17 +187,9 @@ public class ChessGame {
                         ChessPiece killedPiece = board.getPiece(move.getEndPosition());
                         try{
                             makeMove(move);
-                            System.out.println(move.getStartPosition().getRow());
-                            System.out.println(move.getStartPosition().getColumn());
-                            System.out.println(move.getEndPosition().getRow());
-                            System.out.println(move.getEndPosition().getColumn());
                             undoMove(move, killedPiece);
                         }
                         catch(InvalidMoveException e){
-                            System.out.println(move.getStartPosition().getRow());
-                            System.out.println(move.getStartPosition().getColumn());
-                            System.out.println(move.getEndPosition().getRow());
-                            System.out.println(move.getEndPosition().getColumn());
                             System.out.println(e.getMessage());
                         }
                         if(!isInCheck(teamColor)){
@@ -223,7 +215,23 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)){
+            return false;
+        }
+
+        for (int row = 1; row <=8; row++){
+            for (int col = 1; col <=8; col++){
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() == teamColor){
+                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                    if (!moves.isEmpty()){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
