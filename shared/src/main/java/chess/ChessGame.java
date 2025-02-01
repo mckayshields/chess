@@ -113,6 +113,8 @@ public class ChessGame {
 
     public void undoMove(ChessMove move, ChessPiece killedPiece){
         //undoes a move if testing moves for checkmates
+
+        //get move info
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(endPosition);
@@ -132,18 +134,15 @@ public class ChessGame {
         else{
             board.addPiece(endPosition, null);
         }
-        //switch team color
-        if (currentTeam == TeamColor.WHITE){
-            currentTeam = TeamColor.BLACK;
-        }
-        else{
-            currentTeam = TeamColor.WHITE;
-        }
+        //switch teams back
+        switchTeams();
 
     }
 
     public void makeMoveWithoutExceptions(ChessMove move){
         //this makes move without checking if valid (used as helper for valid moves)
+
+        //get move info
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPosition);
@@ -159,7 +158,11 @@ public class ChessGame {
         //remove from old space
         board.addPiece(startPosition, null);
 
-        //switch team color
+        //switch teams using helper function
+        switchTeams();
+    }
+
+    public void switchTeams(){
         if (currentTeam == TeamColor.WHITE){
             currentTeam = TeamColor.BLACK;
         }
