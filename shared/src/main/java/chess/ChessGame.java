@@ -61,7 +61,7 @@ public class ChessGame {
         Collection<ChessMove> moves = piece.pieceMoves(board,startPosition);
         for (ChessMove move: moves){
             ChessPiece killedPiece = board.getPiece(move.getEndPosition());
-            makeMoveWithoutExceptions(move);
+            tryMove(move);
             if (!isInCheck(teamColor)){
                 validMoves.add(move);
             }
@@ -139,7 +139,7 @@ public class ChessGame {
 
     }
 
-    public void makeMoveWithoutExceptions(ChessMove move){
+    public void tryMove(ChessMove move){
         //this makes move without checking if valid (used as helper for valid moves)
 
         //get move info
@@ -234,7 +234,7 @@ public class ChessGame {
                     for (ChessMove move: moves){
                         ChessPiece killedPiece = board.getPiece(move.getEndPosition());
                         //make move and see if still in check
-                        makeMoveWithoutExceptions(move);
+                        tryMove(move);
                         if(!isInCheck(teamColor)){
                             return false;
                         }
