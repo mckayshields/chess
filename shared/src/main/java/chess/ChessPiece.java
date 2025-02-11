@@ -57,26 +57,26 @@ public class ChessPiece {
         Collection<ChessMove> moves = new ArrayList<>();
         if (type == ChessPiece.PieceType.KING) {
             int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1,1}, {1,-1}, {-1,1},{-1,-1}};
-            moves.addAll(FixedDistance(board, myPosition, directions));
+            moves.addAll(fixedDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.QUEEN) {
             int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1,1}, {1,-1}, {-1,1},{-1,-1}};
-            moves.addAll(VariableDistance(board, myPosition, directions));
+            moves.addAll(variableDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.BISHOP) {
             int[][] directions = {{1, 1}, {1, -1}, {-1,1}, {-1,-1}};
-            moves.addAll(VariableDistance(board, myPosition, directions));
+            moves.addAll(variableDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.KNIGHT) {
             int[][] directions = {{1, 2}, {2, 1}, {-1, -2}, {-2, -1}, {1,-2}, {-2,1}, {-1,2},{2,-1}};
-            moves.addAll(FixedDistance(board, myPosition, directions));
+            moves.addAll(fixedDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.ROOK) {
             int[][] directions = {{0, 1}, {0, -1}, {1,0},{-1,0}};
-            moves.addAll(VariableDistance(board, myPosition, directions));
+            moves.addAll(variableDistance(board, myPosition, directions));
         } else if (type == ChessPiece.PieceType.PAWN) {
-            moves.addAll(PawnMoves(board,myPosition));
+            moves.addAll(pawnMoves(board,myPosition));
         }
         return moves;
     }
 
-    private Collection<ChessMove> FixedDistance(ChessBoard board, ChessPosition position, int[][] directions) {
+    private Collection<ChessMove> fixedDistance(ChessBoard board, ChessPosition position, int[][] directions) {
         int row = position.getRow();
         int column = position.getColumn();
         Collection<ChessMove> moves = new ArrayList<>();
@@ -100,7 +100,7 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> VariableDistance(ChessBoard board, ChessPosition position, int[][] directions) {
+    private Collection<ChessMove> variableDistance(ChessBoard board, ChessPosition position, int[][] directions) {
         Collection<ChessMove> moves = new ArrayList<>();
         for (int[] direction: directions){
             int newRow = position.getRow();
@@ -132,7 +132,7 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition position) {
+    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
 
         //determine direction based on color

@@ -197,13 +197,14 @@ public class ChessGame {
             for (int col = 1; col <=8; col++){
                 ChessPosition position = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(position);
-                if (piece != null && piece.getTeamColor() != teamColor){
-                    //try all moves and see if any threaten king
-                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
-                    for (ChessMove move: moves){
-                        if (move.getEndPosition().equals(kingPosition)){
-                            return true;
-                        }
+                if (piece == null || piece.getTeamColor() == teamColor){
+                    continue;
+                }
+                //try all moves and see if any threaten king
+                Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                for (ChessMove move: moves){
+                    if (move.getEndPosition().equals(kingPosition)){
+                        return true;
                     }
                 }
             }
@@ -228,19 +229,20 @@ public class ChessGame {
             for(int col=1; col<=8; col++){
                 ChessPosition position = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(position);
+                if(piece == null || piece.getTeamColor() != teamColor){
+                    continue;
+                }
                 //if correct team's piece, look at possible moves
-                if (piece != null && piece.getTeamColor() == teamColor){
-                    Collection<ChessMove> moves = validMoves(position);
-                    for (ChessMove move: moves){
-                        ChessPiece killedPiece = board.getPiece(move.getEndPosition());
-                        //make move and see if still in check
-                        tryMove(move);
-                        if(!isInCheck(teamColor)){
-                            return false;
-                        }
-                        //undoMove
-                        undoMove(move, killedPiece);
+                Collection<ChessMove> moves = validMoves(position);
+                for (ChessMove move: moves){
+                    ChessPiece killedPiece = board.getPiece(move.getEndPosition());
+                    //make move and see if still in check
+                    tryMove(move);
+                    if(!isInCheck(teamColor)){
+                        return false;
                     }
+                    //undoMove
+                    undoMove(move, killedPiece);
                 }
             }
         }
