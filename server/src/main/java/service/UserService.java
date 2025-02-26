@@ -6,14 +6,13 @@ import java.util.UUID;
 import dataaccess.*;
 
 public class UserService {
-    private final MemoryUserData userDataAccess;
-    private final MemoryAuthData authDataAccess;
+    private final UserDataAccess userDataAccess;
+    private final AuthDataAccess authDataAccess;
 
-    public UserService(MemoryUserData userDataAccess, MemoryAuthData authDataAccess){
+    public UserService(UserDataAccess userDataAccess, AuthDataAccess authDataAccess){
         this.userDataAccess = userDataAccess;
         this.authDataAccess = authDataAccess;
     }
-
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
@@ -46,8 +45,7 @@ public class UserService {
             String username = loginRequest.username();
             String password = loginRequest.password();
             UserData userData = userDataAccess.getUser(username);
-            // verify password
-            if(!userData.password().equals(password)){
+            if(userData == null || !userData.password().equals(password)){
                 throw new ResponseException(401, "Error: unauthorized");
             }
             String authToken = generateToken();

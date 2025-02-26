@@ -3,12 +3,18 @@ package dataaccess;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import chess.ChessGame;
 import model.GameData;
 
 public class MemoryGameData implements GameDataAccess{
+    private int gameID = 0;
     private final Map<Integer, GameData> gameDatabase = new HashMap<>();
-    public void createGame(GameData gameData){
+    public int createGame(String gameName){
+        gameID++;
+        GameData gameData = new GameData(gameID, null, null, gameName, new ChessGame());
         gameDatabase.put(gameData.gameID(), gameData);
+        return gameID;
     }
 
     public GameData getGame(Integer gameID) {
