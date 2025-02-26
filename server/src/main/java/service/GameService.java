@@ -64,6 +64,16 @@ public class GameService {
             if (gameData.whiteUsername() != null && teamColor == ChessGame.TeamColor.WHITE){
                 throw new ResponseException(403, "Error: already taken");
             }
+            String gameName = gameData.gameName();
+            ChessGame game = gameData.game();
+            GameData newGameData;
+            if (teamColor == ChessGame.TeamColor.BLACK){
+                newGameData = new GameData(gameID, gameData.whiteUsername(), authData.username(), gameName, game);
+            }
+            else{
+                newGameData = new GameData(gameID, authData.username(), gameData.blackUsername(), gameName, game);
+            }
+            gameDataAccess.update(gameID, newGameData);
         }
         catch(DataAccessException e){
             throw new ResponseException(500, "Error: " +e.getMessage());
