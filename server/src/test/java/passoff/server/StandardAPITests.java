@@ -186,7 +186,7 @@ public class StandardAPITests {
     @Order(10)
     @DisplayName("Join Created Game")
     public void goodJoin() {
-        //create game
+        //createGame game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
 
         //join as white
@@ -211,7 +211,7 @@ public class StandardAPITests {
     @Order(11)
     @DisplayName("Join Bad Authentication")
     public void badAuthJoin() {
-        //create game
+        //createGame game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
 
         //try join as white
@@ -239,7 +239,7 @@ public class StandardAPITests {
     @Order(11)
     @DisplayName("Join Steal Team Color")
     public void stealColorJoin() {
-        //create game
+        //createGame game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
 
         //add existing user as black
@@ -260,7 +260,7 @@ public class StandardAPITests {
     @Order(11)
     @DisplayName("Join Bad Game ID")
     public void badGameIDJoin() {
-        //create game
+        //createGame game
         createRequest = new TestCreateRequest("Bad Join");
         serverFacade.createGame(createRequest, existingAuth);
 
@@ -287,7 +287,7 @@ public class StandardAPITests {
     @Order(12)
     @DisplayName("List Multiple Games")
     public void gamesList() {
-        //register a few users to create games
+        //register a few users to createGame games
         TestUser userA = new TestUser("a", "A", "a.A");
         TestUser userB = new TestUser("b", "B", "b.B");
         TestUser userC = new TestUser("c", "C", "c.C");
@@ -296,7 +296,7 @@ public class StandardAPITests {
         TestAuthResult authB = serverFacade.register(userB);
         TestAuthResult authC = serverFacade.register(userC);
 
-        //create games
+        //createGame games
         TestListEntry[] expectedList = new TestListEntry[4];
 
         //1 as black from A
@@ -387,7 +387,7 @@ public class StandardAPITests {
     @Order(14)
     @DisplayName("Clear Test")
     public void clearData() {
-        //create filler games
+        //createGame filler games
         serverFacade.createGame(new TestCreateRequest("Mediocre game"), existingAuth);
         serverFacade.createGame(new TestCreateRequest("Awesome game"), existingAuth);
 
@@ -395,7 +395,7 @@ public class StandardAPITests {
         TestUser user = new TestUser("ClearMe", "cleared", "clear@mail.com");
         TestAuthResult registerResult = serverFacade.register(user);
 
-        //create and join game for new user
+        //createGame and join game for new user
         TestCreateResult createResult = serverFacade.createGame(new TestCreateRequest("Clear game"),
                 registerResult.getAuthToken());
 

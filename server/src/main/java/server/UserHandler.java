@@ -2,7 +2,6 @@ package server;
 import exception.ResponseException;
 import model.*;
 import model.RegisterResponse;
-import org.eclipse.jetty.util.log.Log;
 import spark.*;
 import service.UserService;
 import com.google.gson.Gson;

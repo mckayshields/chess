@@ -1,13 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import exception.ResponseException;
 import model.*;
 import service.GameService;
 import spark.Request;
 import spark.Response;
-
-import java.util.List;
 import java.util.Map;
 
 public class GameHandler {
@@ -17,8 +16,13 @@ public class GameHandler {
     }
 
     public Object createHandler(Request req, Response res) throws ResponseException {
+        JsonObject jsonObject = new Gson().fromJson(req.body(), JsonObject.class);
+        jsonObject.addProperty("authToken", req.headers("authorization"));
+        String modifiedObjects = jsonObject.toString();
+        var newRequest = new Gson().toJson(modifiedObjects, CreateRequest.class);
+        CreateRequest createRequest = new Gson().fromJson(newRequest, CreateRequest.class);
         try {
-            CreateResponse createResponse = service.create(req.body());
+            CreateResponse createResponse = service.createGame(createRequest);
             return new Gson().toJson(createResponse);
         }
         catch(ResponseException e) {
@@ -29,7 +33,11 @@ public class GameHandler {
     }
 
     public Object joinHandler(Request req, Response res) throws ResponseException{
-        JoinRequest joinRequest = new Gson().fromJson(req.body(), JoinRequest.class);
+        JsonObject jsonObject = new Gson().fromJson(req.body(), JsonObject.class);
+        jsonObject.addProperty("authToken", req.headers("authorization"));
+        String modifiedObjects = jsonObject.toString();
+        var newRequest = new Gson().toJson(modifiedObjects, JoinRequest.class);
+        JoinRequest joinRequest = new Gson().fromJson(newRequest, JoinRequest.class);
         try {
             service.join(joinRequest);
             return new Gson().toJson(null);
