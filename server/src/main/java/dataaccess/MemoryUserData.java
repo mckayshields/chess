@@ -3,10 +3,10 @@ import java.util.HashMap;
 import java.util.Map;
 import model.UserData;
 
-public class MemoryUserData {
+public class MemoryUserData implements UserDataAccess{
     private final Map<String, UserData> userDatabase = new HashMap<>();
 
-    public void createUser(UserData userData) throws DataAccessException {
+    public void createUser(UserData userData) {
         userDatabase.put(userData.username(), userData);
     }
 
