@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.*;
+import exception.ResponseException;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -33,9 +34,10 @@ public class Server {
         Spark.put("/game", gameHandler::joinHandler);
         Spark.delete("/db", clearHandler::clearHandler);
 
-        Spark.exception(Exception.class, (e, request, response) -> {
+        Spark.exception(ResponseException.class, (e, request, response) -> {
             response.type("application/json");
-            response.body("{\"message\": \"" + e.getMessage() + "\"}");
+            response.status(e.StatusCode());
+            response.body(e.toJson());
         });
 
         //This line initializes the server and can be removed once you have a functioning endpoint 

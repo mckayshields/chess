@@ -47,6 +47,9 @@ public class GameService {
     }
     public void join(JoinRequest joinRequest) throws ResponseException{
         try {
+            if (joinRequest.authToken() == null || joinRequest.gameID() == 0 || joinRequest.playerColor() == null){
+                throw new ResponseException(400, "Error: bad request");
+            }
             String authToken = joinRequest.authToken();
             int gameID = joinRequest.gameID();
             ChessGame.TeamColor teamColor = joinRequest.playerColor();
@@ -55,9 +58,6 @@ public class GameService {
                 throw new ResponseException(401, "Error: unauthorized");
             }
             GameData gameData = gameDataAccess.getGame(gameID);
-            if (gameData == null){
-                throw new ResponseException(400, "Error: bad request");
-            }
             if (gameData.blackUsername() != null && teamColor == ChessGame.TeamColor.BLACK){
                 throw new ResponseException(403, "Error: already taken");
             }
