@@ -30,7 +30,7 @@ public class GameService {
         }
 
     }
-    public CreateResponse create(CreateRequest createRequest) throws ResponseException {
+    public CreateResponse create(String createRequest) throws ResponseException {
         try {
             String authToken = createRequest.authToken();
             String gameName = createRequest.gameName();

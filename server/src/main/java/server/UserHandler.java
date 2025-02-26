@@ -2,6 +2,7 @@ package server;
 import exception.ResponseException;
 import model.*;
 import model.RegisterResponse;
+import org.eclipse.jetty.util.log.Log;
 import spark.*;
 import service.UserService;
 import com.google.gson.Gson;
@@ -11,8 +12,8 @@ public class UserHandler {
     public UserHandler(UserService service) {
         this.service = service;
     }
-    private Object registerHandler(Request req, Response res) throws ResponseException{
-        var registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
+    public Object registerHandler(Request req, Response res) throws ResponseException{
+        RegisterRequest registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
         try {
             RegisterResponse registerResponse = service.register(registerRequest);
             return new Gson().toJson(registerResponse);
@@ -24,8 +25,8 @@ public class UserHandler {
         }
     }
 
-    private Object loginHandler(Request req, Response res) throws ResponseException{
-        var loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
+    public Object loginHandler(Request req, Response res) throws ResponseException{
+        LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
         try {
             LoginResponse loginResponse = service.login(loginRequest);
             return new Gson().toJson(loginResponse);
@@ -37,8 +38,8 @@ public class UserHandler {
         }
     }
 
-    private Object logoutHandler(Request req, Response res) throws ResponseException{
-        var logoutRequest = new Gson().fromJson(req.body(), LogoutRequest.class);
+    public Object logoutHandler(Request req, Response res) throws ResponseException{
+        LogoutRequest logoutRequest = new LogoutRequest(req.headers("authorization"));
         try {
             service.logout(logoutRequest);
             return new Gson().toJson(null);

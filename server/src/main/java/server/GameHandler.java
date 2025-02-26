@@ -6,6 +6,8 @@ import model.*;
 import service.GameService;
 import spark.Request;
 import spark.Response;
+
+import java.util.List;
 import java.util.Map;
 
 public class GameHandler {
@@ -14,10 +16,9 @@ public class GameHandler {
         this.service = service;
     }
 
-    private Object createHandler(Request req, Response res) throws ResponseException {
-        var createRequest = new Gson().fromJson(req.body(), CreateRequest.class);
+    public Object createHandler(Request req, Response res) throws ResponseException {
         try {
-            CreateResponse createResponse = service.create(createRequest);
+            CreateResponse createResponse = service.create(req.body());
             return new Gson().toJson(createResponse);
         }
         catch(ResponseException e) {
@@ -27,8 +28,8 @@ public class GameHandler {
         }
     }
 
-    private Object joinHandler(Request req, Response res) throws ResponseException{
-        var joinRequest = new Gson().fromJson(req.body(), JoinRequest.class);
+    public Object joinHandler(Request req, Response res) throws ResponseException{
+        JoinRequest joinRequest = new Gson().fromJson(req.body(), JoinRequest.class);
         try {
             service.join(joinRequest);
             return new Gson().toJson(null);
@@ -40,8 +41,8 @@ public class GameHandler {
         }
     }
 
-    private Object listHandler(Request req, Response res) throws ResponseException{
-        var listRequest = new Gson().fromJson(req.body(), ListRequest.class);
+    public Object listHandler(Request req, Response res) throws ResponseException{
+        ListRequest listRequest = new ListRequest(req.headers("authorization"));
         try{
             ListResponse listResponse = service.list(listRequest);
             return new Gson().toJson(Map.of("games", listResponse));

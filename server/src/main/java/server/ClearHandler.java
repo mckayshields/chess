@@ -13,7 +13,7 @@ public class ClearHandler {
         this.service = service;
     }
 
-    private Object clearHandler(Request req, Response res) throws ResponseException {
+    public Object clearHandler(Request req, Response res) throws ResponseException {
         try {
             service.clear();
             return new Gson().toJson(null);
