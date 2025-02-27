@@ -19,7 +19,7 @@ public class ClearHandler {
             return new Gson().toJson(null);
         }
         catch(ResponseException e) {
-            int statusCode = e.StatusCode();
+            int statusCode = e.getStatusCode();
             res.status(statusCode);
             throw e;
         }

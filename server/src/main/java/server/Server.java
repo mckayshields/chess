@@ -36,7 +36,7 @@ public class Server {
 
         Spark.exception(ResponseException.class, (e, request, response) -> {
             response.type("application/json");
-            response.status(e.StatusCode());
+            response.status(e.getStatusCode());
             response.body(e.toJson());
         });
 

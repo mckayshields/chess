@@ -18,7 +18,7 @@ public class UserHandler {
             return new Gson().toJson(registerResponse);
         }
         catch(ResponseException e){
-            int statusCode = e.StatusCode();
+            int statusCode = e.getStatusCode();
             res.status(statusCode);
             throw e;
         }
@@ -31,7 +31,7 @@ public class UserHandler {
             return new Gson().toJson(loginResponse);
         }
         catch(ResponseException e) {
-            int statusCode = e.StatusCode();
+            int statusCode = e.getStatusCode();
             res.status(statusCode);
             throw e;
         }
@@ -44,7 +44,7 @@ public class UserHandler {
             return new Gson().toJson(null);
         }
         catch(ResponseException e) {
-            int statusCode = e.StatusCode();
+            int statusCode = e.getStatusCode();
             res.status(statusCode);
             throw e;
         }

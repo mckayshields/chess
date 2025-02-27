@@ -3,7 +3,6 @@ package service;
 import dataaccess.*;
 import exception.ResponseException;
 import model.*;
-import org.eclipse.jetty.util.preventers.GCThreadLeakPreventer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
