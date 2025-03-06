@@ -10,6 +10,10 @@ import java.util.Collection;
 public class SqlGameData implements GameDataAccess{
     private int gameCount =0;
 
+    public SqlGameData() throws DataAccessException {
+        configureDatabase(createStatements);
+    }
+
     @Override
     public int createGame(String gameName) throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()){
@@ -77,12 +81,31 @@ public class SqlGameData implements GameDataAccess{
 
     @Override
     public void update(Integer gameID, GameData gameData) throws DataAccessException {
-
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, chessGame=? WHERE gameID=?")) {
+                statement.setString(1, gameData.whiteUsername());
+                statement.setString(2, gameData.blackUsername());
+                statement.setString(3, gameData.gameName());
+                statement.setString(4, gameToString(gameData.game()));
+                statement.setInt(5, gameData.gameID());
+                int rowsUpdated = statement.executeUpdate();
+                if (rowsUpdated == 0) throw new DataAccessException("Item requested to be updated not found");
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
-
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "TRUNCATE gameData";
+            try(var ps = conn.prepareStatement(statement)){
+                ps.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     private final String[] createStatements = {
@@ -97,6 +120,19 @@ public class SqlGameData implements GameDataAccess{
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
+
+    static void configureDatabase(String[] createStatements) throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
 
     private String gameToString(ChessGame game) {
         return new Gson().toJson(game);

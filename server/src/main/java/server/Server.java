@@ -8,22 +8,40 @@ import service.UserService;
 import spark.*;
 
 public class Server {
+    UserDataAccess userDataAccess;
+    AuthDataAccess authDataAccess;
+    GameDataAccess gameDataAccess;
+
+    UserService userService;
+    GameService gameService;
+    ClearService clearService;
+
+    UserHandler userHandler;
+    GameHandler gameHandler;
+    ClearHandler clearHandler;
+
+    public Server(){
+        userDataAccess = new SqlUserData();
+        authDataAccess = new SqlAuthData();
+        gameDataAccess = new SqlGameData();
+        userService = new UserService(userDataAccess, authDataAccess);
+        gameService = new GameService(gameDataAccess, authDataAccess);
+        clearService = new ClearService(gameDataAccess, authDataAccess, userDataAccess);
+
+        userHandler = new UserHandler(userService);
+        gameHandler = new GameHandler(gameService);
+        clearHandler = new ClearHandler(clearService);
+
+        try { DatabaseManager.createDatabase(); } catch (DataAccessException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-
-        UserDataAccess userDataAccess = new SqlUserData();
-        AuthDataAccess authDataAccess = new SqlAuthData();
-        GameDataAccess gameDataAccess = new SqlGameData();
-        UserService userService = new UserService(userDataAccess, authDataAccess);
-        GameService gameService = new GameService(gameDataAccess, authDataAccess);
-        ClearService clearService = new ClearService(gameDataAccess, authDataAccess, userDataAccess);
-
-        UserHandler userHandler = new UserHandler(userService);
-        GameHandler gameHandler = new GameHandler(gameService);
-        ClearHandler clearHandler = new ClearHandler(clearService);
+        
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", userHandler::registerHandler);

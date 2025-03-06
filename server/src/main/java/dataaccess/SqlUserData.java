@@ -70,16 +70,7 @@ public class SqlUserData implements UserDataAccess{
     };
 
     private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        SqlGameData.configureDatabase(createStatements);
     }
 
 }
