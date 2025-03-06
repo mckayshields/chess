@@ -4,6 +4,7 @@ import exception.ResponseException;
 import model.*;
 import java.util.UUID;
 import dataaccess.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
     private final UserDataAccess userDataAccess;
@@ -45,7 +46,9 @@ public class UserService {
             String username = loginRequest.username();
             String password = loginRequest.password();
             UserData userData = userDataAccess.getUser(username);
-            if(userData == null || !userData.password().equals(password)){
+            String hashedPassword = userData.password();
+            //if(!userData.password().equals(hashedPassword)){
+            if(!BCrypt.checkpw(password, hashedPassword)){
                 throw new ResponseException(401, "Error: unauthorized");
             }
             String authToken = generateToken();
