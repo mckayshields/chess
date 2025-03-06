@@ -14,9 +14,9 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        UserDataAccess userDataAccess = new MemoryUserData();
-        AuthDataAccess authDataAccess = new MemoryAuthData();
-        GameDataAccess gameDataAccess = new MemoryGameData();
+        UserDataAccess userDataAccess = new SqlUserData();
+        AuthDataAccess authDataAccess = new SqlAuthData();
+        GameDataAccess gameDataAccess = new SqlGameData();
         UserService userService = new UserService(userDataAccess, authDataAccess);
         GameService gameService = new GameService(gameDataAccess, authDataAccess);
         ClearService clearService = new ClearService(gameDataAccess, authDataAccess, userDataAccess);

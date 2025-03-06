@@ -12,7 +12,7 @@ public class SqlUserData implements UserDataAccess{
     @Override
     public void createUser(UserData userData) throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()){
-            var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            var statement = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
             String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
             try(var ps = conn.prepareStatement(statement)){
                 ps.setString(1, userData.username());
