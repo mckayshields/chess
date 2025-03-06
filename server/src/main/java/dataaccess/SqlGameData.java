@@ -3,33 +3,52 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class SqlGameData implements GameDataAccess{
+    private int gameCount =0;
+
     @Override
     public int createGame(String gameName) throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()){
-            
-            var statement = "INSERT INTO gameData (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?)";
-            String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+
+            var statement = "INSERT INTO " +
+                    "gameData (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
             try(var ps = conn.prepareStatement(statement)){
-                ps.setString(1, userData.username());
-                ps.setString(2, hashedPassword);
-                ps.setString(3, userData.email());
+                gameCount++;
+                ps.setInt(1, gameCount);
+                ps.setString(2, null);
+                ps.setString(3, null);
+                ps.setString(4, gameName);
+                ps.setString(5, gameToString(new ChessGame()));
                 ps.executeUpdate();
+                return gameCount;
             }
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
         }
-        return 0;
     }
 
     @Override
     public GameData getGame(Integer gameID) throws DataAccessException {
-        return null;
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT whiteUsername, blackUsername, gameName, game FROM gameData WHERE gameID=?";
+            try(var ps = conn.prepareStatement(statement)){
+                ps.setInt(1, gameID);
+                try(var rs = ps.executeQuery()){
+                    var whiteUsername = rs.getString("whiteUsername");
+                    var blackUsername = rs.getString("blackUsername");
+                    var gameName = rs.getString("gameName");
+                    var gameString = rs.getString("game");
+                    return new GameData(gameID, whiteUsername, blackUsername, gameName, stringToGame(gameString));
+                }
+            }
+        }
+        catch(Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
@@ -45,8 +64,7 @@ public class SqlGameData implements GameDataAccess{
                         var blackUsername = rs.getString("blackUsername");
                         var gameName = rs.getString("gameName");
                         var gameString = rs.getString("game");
-                        ChessGame game = deserialize(gameString);
-                        //TODO Deserialize game data before saving
+                        ChessGame game = stringToGame(gameString);
                         result.add(new GameData(gameID, whiteUsername, blackUsername, gameName, game));
                     }
                 }
@@ -80,11 +98,11 @@ public class SqlGameData implements GameDataAccess{
             """
     };
 
-    private String serialize(ChessGame game) {
+    private String gameToString(ChessGame game) {
         return new Gson().toJson(game);
     }
 
-    private ChessGame deserialize(String serializedString) {
+    private ChessGame stringToGame(String serializedString) {
         return new Gson().fromJson(serializedString, ChessGame.class);
     }
 
