@@ -70,9 +70,9 @@ public class SqlAuthData implements AuthDataAccess{
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  authData (
-              `authData` varchar(256) NOT NULL,
+              `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
-              PRIMARY KEY (`authData`)
+              PRIMARY KEY (`authToken`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };

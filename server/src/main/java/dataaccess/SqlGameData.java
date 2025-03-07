@@ -11,6 +11,18 @@ public class SqlGameData implements GameDataAccess{
     private int gameCount =0;
 
     public SqlGameData() throws DataAccessException {
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  gameData (
+              `gameID` int NOT NULL AUTO_INCREMENT,
+              `whiteUsername` varchar(256) DEFAULT NULL,
+              `blackUsername` varchar(256) DEFAULT NULL,
+              `gameName` varchar(256) NOT NULL,
+              `game` TEXT DEFAULT NULL,
+              PRIMARY KEY (`gameID`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
         configureDatabase(createStatements);
     }
 
@@ -42,11 +54,17 @@ public class SqlGameData implements GameDataAccess{
             try(var ps = conn.prepareStatement(statement)){
                 ps.setInt(1, gameID);
                 try(var rs = ps.executeQuery()){
-                    var whiteUsername = rs.getString("whiteUsername");
-                    var blackUsername = rs.getString("blackUsername");
-                    var gameName = rs.getString("gameName");
-                    var gameString = rs.getString("game");
-                    return new GameData(gameID, whiteUsername, blackUsername, gameName, stringToGame(gameString));
+                    if (rs.next()){
+                        var whiteUsername = rs.getString("whiteUsername");
+                        var blackUsername = rs.getString("blackUsername");
+                        var gameName = rs.getString("gameName");
+                        var gameString = rs.getString("game");
+                        return new GameData(gameID, whiteUsername, blackUsername, gameName, stringToGame(gameString));
+                    }
+                    else{
+                        return null;
+                    }
+
                 }
             }
         }
@@ -107,19 +125,6 @@ public class SqlGameData implements GameDataAccess{
             throw new DataAccessException(e.getMessage());
         }
     }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  gameData (
-              `gameID` int NOT NULL AUTO_INCREMENT,
-              `whiteUsername` varchar(256) DEFAULT NULL,
-              `blackUsername` varchar(256) DEFAULT NULL,
-              `gameName` varchar(256) NOT NULL,
-              `game` TEXT DEFAULT NULL,
-              PRIMARY KEY (`gameID`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
 
     static void configureDatabase(String[] createStatements) throws DataAccessException {
         DatabaseManager.createDatabase();
