@@ -7,6 +7,8 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 
+import javax.xml.crypto.Data;
+
 public class Server {
     UserDataAccess userDataAccess;
     AuthDataAccess authDataAccess;
@@ -21,9 +23,15 @@ public class Server {
     ClearHandler clearHandler;
 
     public Server(){
-        userDataAccess = new SqlUserData();
-        authDataAccess = new SqlAuthData();
-        gameDataAccess = new SqlGameData();
+        try{
+            userDataAccess = new SqlUserData();
+            authDataAccess = new SqlAuthData();
+            gameDataAccess = new SqlGameData();
+        }
+        catch(DataAccessException e){
+            throw new RuntimeException(e.getMessage());
+        }
+
         userService = new UserService(userDataAccess, authDataAccess);
         gameService = new GameService(gameDataAccess, authDataAccess);
         clearService = new ClearService(gameDataAccess, authDataAccess, userDataAccess);
@@ -41,7 +49,7 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-        
+
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", userHandler::registerHandler);

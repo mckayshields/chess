@@ -51,7 +51,8 @@ public class UserService {
                 throw new ResponseException(401, "Error: unauthorized");
                 }
              */
-            if(!BCrypt.checkpw(password, hashedPassword)){
+            String newlyHashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+            if(!BCrypt.checkpw(newlyHashedPassword, hashedPassword)){
                 throw new ResponseException(401, "Error: unauthorized");
             }
             String authToken = generateToken();
