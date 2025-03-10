@@ -31,4 +31,29 @@ public class AuthDataTests {
         assertNull(retrievedAuth);
     }
 
+    @Test
+    void getAuth() throws DataAccessException {
+        AuthData authData = new AuthData("testToken", "testUser");
+        AuthDataAccess authDataAccess = new SqlAuthData();
+        authDataAccess.createAuth(authData);
+        AuthData retrievedAuth = authDataAccess.getAuth("testToken");
+        assertEquals(authData, retrievedAuth);
+    }
+
+    @Test
+    void getAuthBad() throws DataAccessException {
+        AuthDataAccess authDataAccess = new SqlAuthData();
+        AuthData retrievedAuth = authDataAccess.getAuth("nonExistentToken");
+        assertNull(retrievedAuth);
+    }
+
+    @Test
+    void deleteAuth() throws DataAccessException {
+        AuthData authData = new AuthData("testToken", "testUser");
+        AuthDataAccess authDataAccess = new SqlAuthData();
+        authDataAccess.createAuth(authData);
+        authDataAccess.deleteAuth("testToken");
+        AuthData retrievedAuth = authDataAccess.getAuth("testToken");
+        assertNull(retrievedAuth);
+    }
 }
