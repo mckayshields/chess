@@ -27,7 +27,7 @@ public class SqlUserData implements UserDataAccess{
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        UserData result = null;
+        UserData result = null; //new UserData(null, null, null);
         try (var conn = DatabaseManager.getConnection()) {
                 var statement = "SELECT username, password, email FROM userData WHERE username=?";
                 try (var ps = conn.prepareStatement(statement)) {

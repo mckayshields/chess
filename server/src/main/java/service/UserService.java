@@ -46,14 +46,14 @@ public class UserService {
             String username = loginRequest.username();
             String password = loginRequest.password();
             UserData userData = userDataAccess.getUser(username);
-            String hashedPassword = userData.password();
-            /* if(!userData.password().equals(hashedPassword)){
+            if(userData == null){
                 throw new ResponseException(401, "Error: unauthorized");
+            }
+            else{
+                String hashedPassword = userData.password();
+                if(!BCrypt.checkpw(password, hashedPassword)){
+                    throw new ResponseException(401, "Error: unauthorized");
                 }
-             */
-            String newlyHashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
-            if(!BCrypt.checkpw(newlyHashedPassword, hashedPassword)){
-                throw new ResponseException(401, "Error: unauthorized");
             }
             String authToken = generateToken();
             AuthData authData = new AuthData(authToken, username);

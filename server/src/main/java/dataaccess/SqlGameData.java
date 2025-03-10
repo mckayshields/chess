@@ -13,14 +13,14 @@ public class SqlGameData implements GameDataAccess{
     public SqlGameData() throws DataAccessException {
         String[] createStatements = {
                 """
-            CREATE TABLE IF NOT EXISTS  gameData (
-              `gameID` int NOT NULL AUTO_INCREMENT,
+            CREATE TABLE IF NOT EXISTS gameData (
+              `gameID` int NOT NULL,
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
               `game` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """
         };
         configureDatabase(createStatements);
@@ -100,7 +100,7 @@ public class SqlGameData implements GameDataAccess{
     @Override
     public void update(Integer gameID, GameData gameData) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, chessGame=? WHERE gameID=?")) {
+            try (var statement = conn.prepareStatement("UPDATE gameData SET whiteUsername=?, blackUsername=?, gameName=?, game=? WHERE gameID=?")) {
                 statement.setString(1, gameData.whiteUsername());
                 statement.setString(2, gameData.blackUsername());
                 statement.setString(3, gameData.gameName());
