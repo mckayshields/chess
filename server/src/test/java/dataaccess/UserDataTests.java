@@ -19,7 +19,7 @@ public class UserDataTests {
     void testCreateUser() throws DataAccessException {
         UserData userData = new UserData("JohnDoe", "123password", "fake@email");
         userDataAccess.createUser(userData);
-        UserData retrievedData = userDataAccess.getUser("name");
+        UserData retrievedData = userDataAccess.getUser("JohnDoe");
         assertEquals(userData.username(), retrievedData.username());
         assertEquals(userData.email(), retrievedData.email());
     }

@@ -51,6 +51,8 @@ public class UserService {
             }
             else{
                 String hashedPassword = userData.password();
+                System.out.println(hashedPassword);
+                System.out.println(hashedPassword.length());
                 if(!BCrypt.checkpw(password, hashedPassword)){
                     throw new ResponseException(401, "Error: unauthorized");
                 }
