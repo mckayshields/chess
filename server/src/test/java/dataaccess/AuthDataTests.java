@@ -46,7 +46,7 @@ public class AuthDataTests {
         AuthData retrievedAuth = authDataAccess.getAuth("nonExistentToken");
         assertNull(retrievedAuth);
     }
-
+    
     @Test
     void deleteAuth() throws DataAccessException {
         AuthData authData = new AuthData("testToken", "testUser");
@@ -55,5 +55,24 @@ public class AuthDataTests {
         authDataAccess.deleteAuth("testToken");
         AuthData retrievedAuth = authDataAccess.getAuth("testToken");
         assertNull(retrievedAuth);
+    }
+
+    @Test
+    void deleteAuthWrongToken() throws DataAccessException {
+        AuthData authData = new AuthData("testToken", "testUser");
+        AuthDataAccess authDataAccess = new SqlAuthData();
+        authDataAccess.createAuth(authData);
+        authDataAccess.deleteAuth("wrongToken");
+        AuthData retrievedAuth = authDataAccess.getAuth("testToken");
+        assertNotNull(retrievedAuth);
+    }
+
+    @Test
+    void testClear() throws DataAccessException {
+        AuthData authData = new AuthData("testToken", "testUser");
+        AuthDataAccess authDataAccess = new SqlAuthData();
+        authDataAccess.createAuth(authData);
+        authDataAccess.clear();
+        assertNull(authDataAccess.getAuth("token1"));
     }
 }
