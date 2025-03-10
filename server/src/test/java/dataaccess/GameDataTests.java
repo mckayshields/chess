@@ -26,10 +26,10 @@ public class GameDataTests {
 
     @Test
     void testGetGame() throws DataAccessException {
-        int gameID = gameDataAccess.createGame("funGame");
+        int gameID = gameDataAccess.createGame("testGetGame");
         GameData gameData = gameDataAccess.getGame(gameID);
         assertEquals(1, gameID);
-        assertEquals("funGame", gameData.gameName());
+        assertEquals("testGetGame", gameData.gameName());
     }
 
     @Test

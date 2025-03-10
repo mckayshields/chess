@@ -106,8 +106,7 @@ public class SqlGameData implements GameDataAccess{
                 statement.setString(3, gameData.gameName());
                 statement.setString(4, gameToString(gameData.game()));
                 statement.setInt(5, gameData.gameID());
-                int rowsUpdated = statement.executeUpdate();
-                if (rowsUpdated == 0) throw new DataAccessException("Item requested to be updated not found");
+                statement.executeUpdate();
             }
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());

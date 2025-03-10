@@ -46,7 +46,7 @@ public class AuthDataTests {
         AuthData retrievedAuth = authDataAccess.getAuth("nonExistentToken");
         assertNull(retrievedAuth);
     }
-    
+
     @Test
     void deleteAuth() throws DataAccessException {
         AuthData authData = new AuthData("testToken", "testUser");
