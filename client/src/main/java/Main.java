@@ -17,6 +17,9 @@ public class Main {
         out.println(whitePieces);
         out.print(SET_BG_COLOR_DARK_GREY);
         out.println(blackPieces);
+        ChessBoard defaultBoard = new ChessBoard();
+        defaultBoard.resetBoard();
+        new DrawBoard(defaultBoard);
 
     }
 }
