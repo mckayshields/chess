@@ -162,7 +162,7 @@ public class ClientUI {
     private static void login(String username, String password){
         AuthData authData = facade.login(username, password);
         System.out.println("Logging in " + username + "... ");
-        String authToken = authData.authToken();
+        authToken = authData.authToken();
         isLoggedIn = true;
     }
 
@@ -183,9 +183,15 @@ public class ClientUI {
 
     private static void list(){
         Collection<GameData> games = facade.listGames(authToken).games();
-
-        
-        //TODO display the games
+        int gameNumber = 1;
+        for (GameData game : games) {
+            System.out.println(gameNumber + ". " + game.gameName());
+            System.out.println("   Players: ");
+            System.out.println("       WHITE: " + game.whiteUsername());
+            System.out.println("       BLACK: " + game.blackUsername());
+            System.out.println();
+            gameNumber++;
+        }
     }
 
     private static void join(int gameID, String teamColor){
