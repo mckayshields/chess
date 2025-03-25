@@ -15,19 +15,18 @@ public class ClientUI {
     private static boolean isRunning = true;
     private static boolean isLoggedIn = false;
     private static String authToken;
-    private static Map<Integer, GameData> gamesMap = new HashMap<>();
+    //private static Map<Integer, GameData> gamesMap = new HashMap<>();
 
     public ClientUI(String url){
         facade = new ServerFacade(url);
     }
 
-    public static void main(String[] args) {
-
+    public void run() {
         System.out.println("♕ Welcome to 240 Chess. Type Help to get started. ♕");
 
         while (isRunning) {
             System.out.print(getHeader());
-            String input = scanner.nextLine().trim();
+            String input = scanner.nextLine();
             handleCommand(input);
         }
     }
@@ -43,10 +42,10 @@ public class ClientUI {
 
     private static void handleCommand(String input) {
         if (isLoggedIn){
-            beforeLogin(input);
+            afterLogin(input);
         }
         else{
-            afterLogin(input);
+            beforeLogin(input);
         }
     }
 
@@ -184,6 +183,8 @@ public class ClientUI {
 
     private static void list(){
         Collection<GameData> games = facade.listGames(authToken).games();
+
+        
         //TODO display the games
     }
 

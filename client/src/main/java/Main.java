@@ -8,11 +8,14 @@ import static ui.EscapeSequences.*;
 
 public class Main {
     public static void main(String[] args) {
-        ClientUI ui = new ClientUI("http://localhost:"+ "8080");
-        var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-        System.out.println("♕ 240 Chess Client: " + piece);
         ChessBoard defaultBoard = new ChessBoard();
         defaultBoard.resetBoard();
-        new DrawBoard(defaultBoard, false);
+        //new DrawBoard(defaultBoard, false);
+
+        var serverUrl = "http://localhost:8080";
+        if (args.length == 1) {
+            serverUrl = args[0];
+        }
+        new ClientUI(serverUrl).run();
     }
 }
