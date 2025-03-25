@@ -10,11 +10,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import ui.DrawBoard;
 
 public class ClientUI {
     private static ServerFacade facade;
-    private static final Scanner scanner = new Scanner(System.in);
+    private static final Scanner scannerIn = new Scanner(System.in);
     private static boolean isRunning = true;
     private static boolean isLoggedIn = false;
     private static String authToken;
@@ -29,7 +28,7 @@ public class ClientUI {
 
         while (isRunning) {
             System.out.print(getHeader());
-            String input = scanner.nextLine();
+            String input = scannerIn.nextLine();
             handleCommand(input);
         }
     }
