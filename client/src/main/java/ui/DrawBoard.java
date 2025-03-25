@@ -7,7 +7,6 @@ import static java.lang.System.out;
 import static ui.EscapeSequences.*;
 
 public class DrawBoard {
-    private final ChessBoard chessboard;
     private final boolean isBlackPOV;
     private final int start;
     private final int end;
@@ -15,12 +14,9 @@ public class DrawBoard {
     private static final String PIECE_PADDING = " ";
 
     public DrawBoard(ChessBoard chessboard, boolean isBlackPOV) {
-        this.chessboard = chessboard;
         this.isBlackPOV = isBlackPOV;
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-
-        //ticTacToe(out);
 
         if (isBlackPOV){
             start = 1;
@@ -59,15 +55,6 @@ public class DrawBoard {
         makeHeader(out);
     }
 
-
-    private void drawHorizontalLine(PrintStream out) {
-            out.print(SET_BG_COLOR_BLACK);
-            out.print(EMPTY.repeat(24+7));
-            out.println();
-    }
-
-
-
     String getUnicode(ChessPiece piece){
         String pieceCharacter = "\u3000";
         if(piece == null){
@@ -88,14 +75,6 @@ public class DrawBoard {
             case QUEEN -> "♛";
             case KING -> "♚";
         };
-        /*pieceCharacter = switch (piece.getPieceType()) {
-            case PAWN -> "P";
-            case ROOK -> "R";
-            case KNIGHT -> "N";
-            case BISHOP -> "B";
-            case QUEEN -> "Q";
-            case KING -> "K";
-        };*/
         return pieceCharacter;
     }
 
