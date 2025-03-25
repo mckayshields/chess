@@ -13,7 +13,7 @@ import java.util.Scanner;
 
 public class ClientUI {
     private static ServerFacade facade;
-    private static final Scanner scannerIn = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in);
     private static boolean isRunning = true;
     private static boolean isLoggedIn = false;
     private static String authToken;
@@ -28,7 +28,7 @@ public class ClientUI {
 
         while (isRunning) {
             System.out.print(getHeader());
-            String input = scannerIn.nextLine();
+            String input = SCANNER.nextLine();
             handleCommand(input);
         }
     }
