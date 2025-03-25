@@ -74,5 +74,46 @@ public class ServerFacadeTests {
         assertThrows(ResponseException.class, () -> facade.logout(authData.username()));
     }
 
+    @Test
+    public void createGameTestBadAuth() throws Exception{
+        facade.register("player6", "password6", "email6@email");
+        var authData = facade.login("player6", "password6");
+        assertThrows(ResponseException.class, () -> facade.createGame( "New Game", "bad auth"));
+    }
+
+    @Test
+    public void createGameTest() throws Exception{
+        facade.register("player7", "password7", "email7@email");
+        var authData = facade.login("player7", "password7");
+        int gameID = facade.createGame( "Game name", authData.authToken()).gameID();
+        assertNotEquals(0, gameID);
+    }
+
+    @Test
+    public void listGameTest() throws Exception{
+        facade.register("player8", "password8", "email8@email");
+        var authData = facade.login("player8", "password8");
+        int gameID = facade.createGame( "Game name", authData.authToken()).gameID();
+        Collection<GameData> games = facade.listGames(authData.authToken()).games();
+        assertEquals(1, games.size());
+    }
+
+    @Test
+    public void listGameTestEmpty() throws Exception{
+        facade.register("player9", "password9", "email9@email");
+        var authData = facade.login("player9", "password9");
+        Collection<GameData> games = facade.listGames(authData.authToken()).games();
+        assertEquals(0, games.size());
+    }
+
+
+
+    @Test
+    public void observeGameTest() throws Exception{
+        var authData = facade.register("player6", "password6", "player6@email.com");
+        assertDoesNotThrow(() -> facade.observeGame(authData.authToken(), 0));
+    }
+
+
 
 }
