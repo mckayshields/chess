@@ -1,6 +1,8 @@
 package ui;
 
+import chess.ChessBoard;
 import client.ServerFacade;
+import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 
@@ -8,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import ui.DrawBoard;
 
 public class ClientUI {
     private static ServerFacade facade;
@@ -21,7 +24,7 @@ public class ClientUI {
         facade = new ServerFacade(url);
     }
 
-    public void run() {
+    public void run() throws ResponseException {
         System.out.println("♕ Welcome to 240 Chess. Type Help to get started. ♕");
 
         while (isRunning) {
@@ -40,7 +43,7 @@ public class ClientUI {
         }
     }
 
-    private static void handleCommand(String input) {
+    private static void handleCommand(String input) throws ResponseException {
         if (isLoggedIn){
             afterLogin(input);
         }
@@ -49,7 +52,7 @@ public class ClientUI {
         }
     }
 
-    private static void beforeLogin(String input){
+    private static void beforeLogin(String input) throws ResponseException {
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
             return;
@@ -88,7 +91,7 @@ public class ClientUI {
         }
     }
 
-    private static void afterLogin(String input){
+    private static void afterLogin(String input) throws ResponseException {
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
             return;
@@ -154,35 +157,35 @@ public class ClientUI {
                 """);}
     }
 
-    private static void register(String username, String password, String email){
+    private static void register(String username, String password, String email) throws ResponseException {
         facade.register(username, password, email);
         System.out.println("Registering " + username + "... ");
     }
 
-    private static void login(String username, String password){
+    private static void login(String username, String password) throws ResponseException {
         AuthData authData = facade.login(username, password);
         System.out.println("Logging in " + username + "... ");
         authToken = authData.authToken();
         isLoggedIn = true;
     }
 
-    private static void logout(){
+    private static void logout() throws ResponseException {
         facade.logout(authToken);
         System.out.println("Logging out...");
         isLoggedIn = false;
     }
 
-    private static void quit(){
+    private static void quit()  {
         System.out.println("Quitting. Sad to see you go!");
         isRunning = false;
     }
 
-    private static void create(String gameName){
+    private static void create(String gameName) throws ResponseException {
         System.out.println("Creating " + gameName);
         facade.createGame(gameName,authToken);
     }
 
-    private static void list(){
+    private static void list() throws ResponseException {
         Collection<GameData> games = facade.listGames(authToken).games();
         int gameNumber = 1;
         for (GameData game : games) {
@@ -196,16 +199,22 @@ public class ClientUI {
         }
     }
 
-    private static void join(int gameNumber, String teamColor){
+    private static void join(int gameNumber, String teamColor) throws ResponseException {
         if (!teamColor.equals("BLACK") && !teamColor.equals("WHITE")){
             System.out.println("Invalid Team Color");
         }
         else {
+            boolean isBlack = teamColor.equals("BLACK");
             int gameID = gamesMap.get(gameNumber).gameID();
             facade.joinGame(gameID, teamColor, authToken);
+            ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
+            DrawBoard drawing = new DrawBoard(board, isBlack);
         }
     }
-    private static void observe(int gameID){
+    private static void observe(int gameNumber) throws ResponseException {
+        int gameID = gamesMap.get(gameNumber).gameID();
+        ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
+        DrawBoard drawing = new DrawBoard(board, false);
         facade.observeGame(authToken, gameID);
     }
 }

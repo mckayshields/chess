@@ -14,100 +14,58 @@ public class ServerFacade {
         this.serverURL = url;
     }
 
-    public AuthData register(String username, String password, String email) {
-        try {
+    public AuthData register(String username, String password, String email) throws ResponseException{
             UserData user = new UserData(username, password, email);
             var path = "/user";
             return this.makeRequest("POST", path, user, AuthData.class, null);
-        }
-        catch(ResponseException e){
-            System.out.println(e.getMessage());
-            return null;
-        }
     }
 
-    public AuthData login(String username, String password) {
-        try{
+    public AuthData login(String username, String password) throws ResponseException{
         UserData user = new UserData(username, password, null);
         var path = "/session";
         return this.makeRequest("POST", path, user, AuthData.class, null);
-        }
-            catch(ResponseException e){
-            System.out.println(e.getMessage());
-            return null;
-        }
+
     }
 
-    public void logout(String authToken) {
-        try{
+    public void logout(String authToken) throws ResponseException{
             var path = "/session";
             this.makeRequest("DELETE", path, null, null, authToken);
-        }
-        catch(ResponseException e){
-            System.out.println(e.getMessage());
-        }
+
     }
 
-    public CreateResponse createGame(String gameName, String authToken)  {
-        try{
+    public CreateResponse createGame(String gameName, String authToken)  throws ResponseException{
             var path = "/game";
             CreateRequest request = new CreateRequest(authToken, gameName);
             return this.makeRequest("POST", path, request, CreateResponse.class, authToken);
-        }
-        catch(ResponseException e){
-            System.out.println(e.getMessage());
-            return null;
-        }
+
     }
 
-    public ListResponse listGames(String authToken) {
-        try{
+    public ListResponse listGames(String authToken) throws ResponseException{
             var path = "/game";
             return this.makeRequest("GET", path, null, ListResponse.class, authToken);
-        }
-        catch(ResponseException e){
-            System.out.println(e.getMessage());
-            return null;
-        }
     }
 
-    public void joinGame(int gameID, String playerColor, String authToken) {
-        try{
+    public void joinGame(int gameID, String playerColor, String authToken) throws ResponseException{
             var path = "/game";
             JoinRequest request;
             if(playerColor.equals("BLACK")){
                 request = new JoinRequest(authToken, ChessGame.TeamColor.BLACK, gameID);
             }
-            else if (playerColor.equals("WHITE")){
+            else{
                 request = new JoinRequest(authToken, ChessGame.TeamColor.WHITE, gameID);
             }
-            //TODO CHECK TEAM COLOR BLACK OR WHITE
             this.makeRequest("PUT", path, request, null, authToken);
-        }
-        catch(ResponseException e){
-            System.out.println(e.getMessage());
-        }
     }
 
-    public void observeGame(String authToken, int gameId) {
-        try{
+    public void observeGame(String authToken, int gameId) throws ResponseException{
             var path = "/game";
             record ObserveGameRequest(int gameId) {
             }
             this.makeRequest("PUT", path, new ObserveGameRequest(gameId), null, authToken);
-        }
-        catch(ResponseException e){
-            System.out.println(e.getMessage());
-        }
     }
 
-    public void clear(){
-        try{
+    public void clear() throws ResponseException {
         this.makeRequest("DELETE", "/db", null, null, null);
-        }
-        catch(ResponseException e){
-            System.out.println(e.getMessage());
-        }
     }
 
 

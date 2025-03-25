@@ -1,3 +1,4 @@
+package ui;
 import chess.*;
 
 import java.io.PrintStream;

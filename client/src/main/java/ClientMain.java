@@ -1,12 +1,8 @@
 import chess.*;
+import exception.ResponseException;
 import ui.ClientUI;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-
-import static ui.EscapeSequences.*;
-
-public class Main {
+public class ClientMain {
     public static void main(String[] args) {
         ChessBoard defaultBoard = new ChessBoard();
         defaultBoard.resetBoard();
@@ -16,6 +12,11 @@ public class Main {
         if (args.length == 1) {
             serverUrl = args[0];
         }
-        new ClientUI(serverUrl).run();
+        try {
+            new ClientUI(serverUrl).run();
+        }
+        catch (ResponseException e){
+            System.out.println(e.getMessage());
+        }
     }
 }

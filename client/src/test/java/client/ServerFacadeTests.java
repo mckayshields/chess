@@ -106,14 +106,29 @@ public class ServerFacadeTests {
         assertEquals(0, games.size());
     }
 
-
-
     @Test
-    public void observeGameTest() throws Exception{
-        var authData = facade.register("player6", "password6", "player6@email.com");
-        assertDoesNotThrow(() -> facade.observeGame(authData.authToken(), 0));
+    public void joinGameTest() throws Exception{
+        facade.register("player10", "password10", "email10@email");
+        var authData = facade.login("player10", "password10");
+        int gameID = facade.createGame( "New Game", authData.authToken()).gameID();
+        facade.joinGame(gameID, "WHITE", authData.authToken());
+        Collection<GameData> games = facade.listGames(authData.authToken()).games();
+        for (GameData game: games){
+            assertEquals("player10", game.whiteUsername());
+        }
     }
 
+    @Test
+    public void joinGameTestAlreadyTaken() throws Exception{
+        facade.register("player10", "password10", "email10@email");
+        var authData = facade.login("player10", "password10");
+        int gameID = facade.createGame( "New Game", authData.authToken()).gameID();
+        facade.joinGame(gameID, "WHITE", authData.authToken());
+        facade.logout(authData.authToken());
+        facade.register("player11", "password11", "email11@email");
+        var newAuthData = facade.login("player11", "password11");
+        assertThrows(ResponseException.class, () ->facade.joinGame(gameID, "WHITE", newAuthData.authToken()));
+    }
 
 
 }
