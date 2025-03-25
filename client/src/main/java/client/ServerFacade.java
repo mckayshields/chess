@@ -38,49 +38,76 @@ public class ServerFacade {
         }
     }
 
-    public void logout(String authToken) throws ResponseException {
+    public void logout(String authToken) {
         try{
-        var path = "/session";
-        this.makeRequest("DELETE", path, null, null, authToken);
+            var path = "/session";
+            this.makeRequest("DELETE", path, null, null, authToken);
         }
         catch(ResponseException e){
             System.out.println(e.getMessage());
         }
     }
 
-    public CreateResponse createGame(String gameName, String authToken) throws ResponseException {
-        var path = "/game";
-        CreateRequest request = new CreateRequest(authToken, gameName);
-        return this.makeRequest("POST", path, request, CreateResponse.class, authToken);
-    }
-
-    public ListResponse listGames(String authToken) throws ResponseException{
-        var path = "/game";
-        return this.makeRequest("GET", path, null, ListResponse.class, authToken);
-    }
-
-    public void joinGame(int gameID, String playerColor, String authToken) throws ResponseException {
-        var path = "/game";
-        JoinRequest request;
-        if(playerColor.equals("BLACK")){
-            request = new JoinRequest(authToken, ChessGame.TeamColor.BLACK, gameID);
+    public CreateResponse createGame(String gameName, String authToken)  {
+        try{
+            var path = "/game";
+            CreateRequest request = new CreateRequest(authToken, gameName);
+            return this.makeRequest("POST", path, request, CreateResponse.class, authToken);
         }
-        else{
-            request = new JoinRequest(authToken, ChessGame.TeamColor.WHITE, gameID);
+        catch(ResponseException e){
+            System.out.println(e.getMessage());
+            return null;
         }
-        //TODO CHECK TEAM COLOR BLACK OR WHITE
-        this.makeRequest("PUT", path, request, null, authToken);
     }
 
-    public void observeGame(String authToken, int gameId) throws ResponseException {
-        var path = "/game";
-        record ObserveGameRequest(int gameId) {
+    public ListResponse listGames(String authToken) {
+        try{
+            var path = "/game";
+            return this.makeRequest("GET", path, null, ListResponse.class, authToken);
         }
-        this.makeRequest("PUT", path, new ObserveGameRequest(gameId), null, authToken);
+        catch(ResponseException e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
-    public void clear() throws ResponseException {
+    public void joinGame(int gameID, String playerColor, String authToken) {
+        try{
+            var path = "/game";
+            JoinRequest request;
+            if(playerColor.equals("BLACK")){
+                request = new JoinRequest(authToken, ChessGame.TeamColor.BLACK, gameID);
+            }
+            else{
+                request = new JoinRequest(authToken, ChessGame.TeamColor.WHITE, gameID);
+            }
+            //TODO CHECK TEAM COLOR BLACK OR WHITE
+            this.makeRequest("PUT", path, request, null, authToken);
+        }
+        catch(ResponseException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void observeGame(String authToken, int gameId) {
+        try{
+            var path = "/game";
+            record ObserveGameRequest(int gameId) {
+            }
+            this.makeRequest("PUT", path, new ObserveGameRequest(gameId), null, authToken);
+        }
+        catch(ResponseException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void clear(){
+        try{
         this.makeRequest("DELETE", "/db", null, null, null);
+        }
+        catch(ResponseException e){
+            System.out.println(e.getMessage());
+        }
     }
 
 

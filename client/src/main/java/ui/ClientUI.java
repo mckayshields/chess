@@ -135,4 +135,62 @@ public class ClientUI {
         }
     }
 
+    private static void displayHelpMenu(){
+        if (isLoggedIn){
+            System.out.println("""
+                create <NAME> - start new game
+                list - see current games
+                join <ID> [WHITE|BLACK] - play a game
+                observe <ID> - watch a game
+                logout - when you are done
+                quit - exit the chess client
+                help - show possible commands
+                """);
+        }
+        else{System.out.println("""
+                register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                login <USERNAME> <PASSWORD> - to play chess
+                quit - exit the chess client
+                help - show possible commands
+                """);}
+    }
+
+    private static void register(String username, String password, String email){
+        facade.register(username, password, email);
+        System.out.println("Registering " + username + "... ");
+    }
+
+    private static void login(String username, String password){
+        AuthData authData = facade.login(username, password);
+        System.out.println("Logging in " + username + "... ");
+        String authToken = authData.authToken();
+        isLoggedIn = true;
+    }
+
+    private static void logout(){
+        facade.logout(authToken);
+        System.out.println("Logging out...");
+        isLoggedIn = false;
+    }
+
+    private static void quit(){
+        System.out.println("Quitting. Sad to see you go!");
+        isRunning = false;
+    }
+
+    private static void create(String gameName){
+        facade.createGame(gameName,authToken);
+    }
+
+    private static void list(){
+        Collection<GameData> games = facade.listGames(authToken).games();
+        //TODO display the games
+    }
+
+    private static void join(int gameID, String teamColor){
+        facade.joinGame(gameID, teamColor, authToken);
+    }
+    private static void observe(int gameID){
+        facade.observeGame(authToken, gameID);
+    }
 }
