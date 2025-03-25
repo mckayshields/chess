@@ -57,13 +57,6 @@ public class ServerFacade {
             this.makeRequest("PUT", path, request, null, authToken);
     }
 
-    public void observeGame(String authToken, int gameId) throws ResponseException{
-            var path = "/game";
-            record ObserveGameRequest(int gameId) {
-            }
-            this.makeRequest("PUT", path, new ObserveGameRequest(gameId), null, authToken);
-    }
-
     public void clear() throws ResponseException {
         this.makeRequest("DELETE", "/db", null, null, null);
     }

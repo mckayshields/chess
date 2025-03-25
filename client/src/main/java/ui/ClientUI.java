@@ -211,10 +211,8 @@ public class ClientUI {
             DrawBoard drawing = new DrawBoard(board, isBlack);
         }
     }
-    private static void observe(int gameNumber) throws ResponseException {
-        int gameID = gamesMap.get(gameNumber).gameID();
+    private static void observe(int gameNumber) {
         ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
         DrawBoard drawing = new DrawBoard(board, false);
-        facade.observeGame(authToken, gameID);
     }
 }
