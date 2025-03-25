@@ -78,7 +78,7 @@ public class ServerFacade {
             if(playerColor.equals("BLACK")){
                 request = new JoinRequest(authToken, ChessGame.TeamColor.BLACK, gameID);
             }
-            else{
+            else if (playerColor.equals("WHITE")){
                 request = new JoinRequest(authToken, ChessGame.TeamColor.WHITE, gameID);
             }
             //TODO CHECK TEAM COLOR BLACK OR WHITE

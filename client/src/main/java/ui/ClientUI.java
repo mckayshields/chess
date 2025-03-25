@@ -15,7 +15,7 @@ public class ClientUI {
     private static boolean isRunning = true;
     private static boolean isLoggedIn = false;
     private static String authToken;
-    //private static Map<Integer, GameData> gamesMap = new HashMap<>();
+    private static Map<Integer, GameData> gamesMap = new HashMap<>();
 
     public ClientUI(String url){
         facade = new ServerFacade(url);
@@ -111,7 +111,7 @@ public class ClientUI {
                 }
                 int gameID = Integer.parseInt(arguments[1]);
                 String teamColor = arguments[2];
-                join(gameID, teamColor);
+                join(gameID, teamColor.toUpperCase());
                 break;
             case "OBSERVE":
                 if (arguments.length != 2){
@@ -178,6 +178,7 @@ public class ClientUI {
     }
 
     private static void create(String gameName){
+        System.out.println("Creating " + gameName);
         facade.createGame(gameName,authToken);
     }
 
@@ -190,12 +191,19 @@ public class ClientUI {
             System.out.println("       WHITE: " + game.whiteUsername());
             System.out.println("       BLACK: " + game.blackUsername());
             System.out.println();
+            gamesMap.put(gameNumber, game);
             gameNumber++;
         }
     }
 
-    private static void join(int gameID, String teamColor){
-        facade.joinGame(gameID, teamColor, authToken);
+    private static void join(int gameNumber, String teamColor){
+        if (!teamColor.equals("BLACK") && !teamColor.equals("WHITE")){
+            System.out.println("Invalid Team Color");
+        }
+        else {
+            int gameID = gamesMap.get(gameNumber).gameID();
+            facade.joinGame(gameID, teamColor, authToken);
+        }
     }
     private static void observe(int gameID){
         facade.observeGame(authToken, gameID);
