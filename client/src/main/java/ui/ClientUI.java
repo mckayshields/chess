@@ -59,11 +59,16 @@ public class ClientUI {
         String inputCommand = arguments[0].toUpperCase();
         switch (inputCommand){
             case "HELP":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
                 displayHelpMenu();
                 break;
             case "REGISTER":
                 if (arguments.length != 4){
-                    System.out.println("Invalid format");
+                    System.out.println("Invalid input format");
+                    break;
                 }
                 else{
                     String username = arguments[1];
@@ -74,7 +79,8 @@ public class ClientUI {
                 break;
             case "LOGIN":
                 if (arguments.length != 3){
-                    System.out.println("Invalid format");
+                    System.out.println("Invalid input format");
+                    break;
                 }
                 else{
                     String username = arguments[1];
@@ -83,6 +89,10 @@ public class ClientUI {
                 }
                 break;
             case "QUIT":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
                 quit();
                 break;
             default:
@@ -99,17 +109,23 @@ public class ClientUI {
         switch (inputCommand){
             case "CREATE":
                 if (arguments.length != 2){
-                    System.out.println("Invalid format");
+                    System.out.println("Invalid input format");
+                    break;
                 }
                 String gameName = arguments[1];
                 create(gameName);
                 break;
             case "LIST":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
                 list();
                 break;
             case "JOIN":
                 if (arguments.length != 3){
-                    System.out.println("Invalid format");
+                    System.out.println("Invalid input format");
+                    break;
                 }
                 int gameID = Integer.parseInt(arguments[1]);
                 String teamColor = arguments[2];
@@ -117,18 +133,31 @@ public class ClientUI {
                 break;
             case "OBSERVE":
                 if (arguments.length != 2){
-                    System.out.println("Invalid format");
+                    System.out.println("Invalid input format");
+                    break;
                 }
                 int observeID = Integer.parseInt(arguments[1]);
                 observe(observeID);
                 break;
             case "HELP":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
                 displayHelpMenu();
                 break;
             case "LOGOUT":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
                 logout();
                 break;
             case "QUIT":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
                 quit();
                 break;
             default:
@@ -159,6 +188,7 @@ public class ClientUI {
     private static void register(String username, String password, String email) throws ResponseException {
         facade.register(username, password, email);
         System.out.println("Registering " + username + "... ");
+        login(username, password);
     }
 
     private static void login(String username, String password) throws ResponseException {
@@ -166,12 +196,15 @@ public class ClientUI {
         System.out.println("Logging in " + username + "... ");
         authToken = authData.authToken();
         isLoggedIn = true;
+        System.out.println("     Please type 'list' to see current games.");
+        System.out.println("     Type 'help' for more options.");
     }
 
     private static void logout() throws ResponseException {
         facade.logout(authToken);
         System.out.println("Logging out...");
         isLoggedIn = false;
+        authToken = null;
     }
 
     private static void quit()  {
@@ -185,7 +218,12 @@ public class ClientUI {
     }
 
     private static void list() throws ResponseException {
+        gamesMap.clear();
         Collection<GameData> games = facade.listGames(authToken).games();
+        if (games.isEmpty()){
+            System.out.println("There are no games running. Please create a game with the following command:");
+            System.out.println("create <NAME> - start new game");
+        }
         int gameNumber = 1;
         for (GameData game : games) {
             System.out.println(gameNumber + ". " + game.gameName());
@@ -204,14 +242,28 @@ public class ClientUI {
         }
         else {
             boolean isBlack = teamColor.equals("BLACK");
-            int gameID = gamesMap.get(gameNumber).gameID();
-            facade.joinGame(gameID, teamColor, authToken);
-            ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
-            DrawBoard drawing = new DrawBoard(board, isBlack);
+            try{
+                int gameID = gamesMap.get(gameNumber).gameID();
+                System.out.println("Joining game "+gameNumber + " as " + teamColor + " player.");
+                facade.joinGame(gameID, teamColor, authToken);
+                ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
+                DrawBoard drawing = new DrawBoard(board, isBlack);
+            }
+            catch(NullPointerException e){
+                System.out.println("Sorry, game "+gameNumber+" does not exist.");
+            }
         }
     }
     private static void observe(int gameNumber) {
-        ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
-        DrawBoard drawing = new DrawBoard(board, false);
+        System.out.println("Displaying game " + gameNumber+ "...");
+        try {
+            ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
+            DrawBoard drawing = new DrawBoard(board, false);
+        }
+        catch(NullPointerException e){
+            System.out.println("Sorry, game "+gameNumber+" does not exist.");
+        }
+
+
     }
 }
