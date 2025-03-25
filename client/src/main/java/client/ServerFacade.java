@@ -13,6 +13,34 @@ public class ServerFacade {
         this.serverURL = url;
     }
 
+    public AuthData register(String username, String password, String email) throws ResponseException {
+        UserData user = new UserData(username, password, email);
+        var path = "/user";
+        return this.makeRequest("POST", path, user, AuthData.class, null);
+    }
+
+    public AuthData login(String username, String password) throws ResponseException {
+        UserData user = new UserData(username, password, null);
+        var path = "/session";
+        return this.makeRequest("POST", path, user, AuthData.class, null);
+    }
+
+    public void logout(String authToken) throws ResponseException {
+        var path = "/session";
+        this.makeRequest("DELETE", path, null, null, authToken);
+    }
+
+    public void observeGame(String authToken, int gameId) throws ResponseException {
+        var path = "/game";
+        record ObserveGameRequest(int gameId) {
+        }
+        this.makeRequest("PUT", path, new ObserveGameRequest(gameId), null, authToken);
+    }
+
+    public void clear() throws ResponseException {
+        this.makeRequest("DELETE", "/db", null, null, null);
+    }
+
 
     private<T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException{
         try{
