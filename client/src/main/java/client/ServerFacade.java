@@ -3,6 +3,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.*;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.*;
@@ -13,21 +14,38 @@ public class ServerFacade {
         this.serverURL = url;
     }
 
-    public AuthData register(String username, String password, String email) throws ResponseException {
-        UserData user = new UserData(username, password, email);
-        var path = "/user";
-        return this.makeRequest("POST", path, user, AuthData.class, null);
+    public AuthData register(String username, String password, String email) {
+        try {
+            UserData user = new UserData(username, password, email);
+            var path = "/user";
+            return this.makeRequest("POST", path, user, AuthData.class, null);
+        }
+        catch(ResponseException e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
-    public AuthData login(String username, String password) throws ResponseException {
+    public AuthData login(String username, String password) {
+        try{
         UserData user = new UserData(username, password, null);
         var path = "/session";
         return this.makeRequest("POST", path, user, AuthData.class, null);
+        }
+            catch(ResponseException e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     public void logout(String authToken) throws ResponseException {
+        try{
         var path = "/session";
         this.makeRequest("DELETE", path, null, null, authToken);
+        }
+        catch(ResponseException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public CreateResponse createGame(String gameName, String authToken) throws ResponseException {
@@ -39,6 +57,19 @@ public class ServerFacade {
     public ListResponse listGames(String authToken) throws ResponseException{
         var path = "/game";
         return this.makeRequest("GET", path, null, ListResponse.class, authToken);
+    }
+
+    public void joinGame(int gameID, String playerColor, String authToken) throws ResponseException {
+        var path = "/game";
+        JoinRequest request;
+        if(playerColor.equals("BLACK")){
+            request = new JoinRequest(authToken, ChessGame.TeamColor.BLACK, gameID);
+        }
+        else{
+            request = new JoinRequest(authToken, ChessGame.TeamColor.WHITE, gameID);
+        }
+        //TODO CHECK TEAM COLOR BLACK OR WHITE
+        this.makeRequest("PUT", path, request, null, authToken);
     }
 
     public void observeGame(String authToken, int gameId) throws ResponseException {
