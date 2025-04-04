@@ -1,6 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
+import chess.*;
 import client.ServerFacade;
 import exception.ResponseException;
 import model.AuthData;
@@ -16,6 +16,9 @@ public class ClientUI {
     private static final Scanner SCANNER = new Scanner(System.in);
     private static boolean isRunning = true;
     private static boolean isLoggedIn = false;
+    private static boolean isInGameplay = false;
+    private static boolean isBlack = false;
+    private static ChessGame currentGame;
     private static String authToken;
     private static Map<Integer, GameData> gamesMap = new HashMap<>();
 
@@ -46,6 +49,9 @@ public class ClientUI {
     private static void handleCommand(String input) throws ResponseException {
         if (isLoggedIn){
             afterLogin(input);
+        }
+        else if (isInGameplay){
+            gameplay(input);
         }
         else{
             beforeLogin(input);
@@ -184,6 +190,15 @@ public class ClientUI {
                 help - show possible commands
                 """);
         }
+        else if (isInGameplay) {
+            System.out.println("""
+                redraw - display the chessboard again
+                leave - remove self from game
+                move <STARTING SQUARE> <ENDING SQUARE> - make a chess move
+                resign - forfeit the game
+                highlight <PIECE SQUARE> - see legal moves for a given piece
+                """);
+        }
         else{System.out.println("""
                 register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                 login <USERNAME> <PASSWORD> - to play chess
@@ -270,13 +285,15 @@ public class ClientUI {
             System.out.println("Invalid Team Color");
         }
         else {
-            boolean isBlack = teamColor.equals("BLACK");
+            isBlack = teamColor.equals("BLACK");
             try{
                 int gameID = gamesMap.get(gameNumber).gameID();
                 System.out.println("Joining game "+gameNumber + " as " + teamColor + " player.");
                 facade.joinGame(gameID, teamColor, authToken);
                 ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
-                DrawBoard drawing = new DrawBoard(board, isBlack);
+                currentGame = gamesMap.get(gameNumber).game();
+                new DrawBoard(board, isBlack, null);
+                isInGameplay = true;
             }
             catch(NullPointerException e){
                 System.out.println("Sorry, game "+gameNumber+" does not exist.");
@@ -291,7 +308,8 @@ public class ClientUI {
         System.out.println("Displaying game " + gameNumber+ "...");
         try {
             ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
-            DrawBoard drawing = new DrawBoard(board, false);
+            currentGame = gamesMap.get(gameNumber).game();
+            new DrawBoard(board, false, null);
         }
         catch(NullPointerException e){
             System.out.println("Sorry, game "+gameNumber+" does not exist.");
@@ -299,7 +317,58 @@ public class ClientUI {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
-
     }
+
+    private static void gameplay(String input) throws ResponseException {
+        String[] arguments = input.split("\\s+");
+        if (arguments.length == 0){
+            return;
+        }
+        String inputCommand = arguments[0].toUpperCase();
+        switch (inputCommand){
+            case "HELP":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                displayHelpMenu();
+                break;
+            case "REDRAW":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                redraw();
+                break;
+            case "LEAVE":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                leave();
+                break;
+            case "MOVE":
+                if (arguments.length != 3){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                movePiece(arguments[1], arguments[2]);
+                break;
+            case "RESIGN":
+                if (arguments.length != 3){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                resign();
+                break;
+            case "HIGHLIGHT":
+                if (arguments.length != 3){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                highlight(arguments[1]);
+                break;
+        }
+    }
+
 }

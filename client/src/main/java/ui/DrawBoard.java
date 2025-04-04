@@ -3,6 +3,7 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import static java.lang.System.out;
 import static ui.EscapeSequences.*;
@@ -14,7 +15,7 @@ public class DrawBoard {
     private final int direction;
     private static final String PIECE_PADDING = " ";
 
-    public DrawBoard(ChessBoard chessboard, boolean isBlackPOV) {
+    public DrawBoard(ChessBoard chessboard, boolean isBlackPOV, Collection<ChessPosition> highlightedSquares) {
         this.isBlackPOV = isBlackPOV;
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
