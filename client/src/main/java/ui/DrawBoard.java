@@ -53,6 +53,9 @@ public class DrawBoard {
                         out.print(SET_BG_COLOR_RED);
                     }
                 }
+                if (position.equals(currentSquare)){
+                    out.print(SET_BG_COLOR_BLUE);
+                }
                 String pieceCharacter = getUnicode(piece);
                 out.print(PIECE_PADDING + pieceCharacter + PIECE_PADDING);
                 out.print("\u001B[22m");

@@ -35,7 +35,10 @@ public class ClientUI {
     }
 
     private static String getHeader(){
-        if (isLoggedIn){
+        if (isInGameplay){
+            return "[GAME_PLAY] >>> ";
+        }
+        else if (isLoggedIn){
             return "[LOGGED_IN] >>> ";
         }
         else{
@@ -44,11 +47,11 @@ public class ClientUI {
     }
 
     private static void handleCommand(String input) throws ResponseException {
-        if (isLoggedIn){
-            afterLogin(input);
-        }
-        else if (isInGameplay){
+        if (isInGameplay){
             gameplay(input);
+        }
+        else if (isLoggedIn){
+            afterLogin(input);
         }
         else{
             beforeLogin(input);
@@ -176,7 +179,16 @@ public class ClientUI {
     }
 
     private static void displayHelpMenu(){
-        if (isLoggedIn){
+        if (isInGameplay) {
+            System.out.println("""
+                redraw - display the chessboard again
+                leave - remove self from game
+                move <STARTING SQUARE> <ENDING SQUARE> - make a chess move
+                resign - forfeit the game
+                highlight <PIECE SQUARE> - see legal moves for a given piece
+                """);
+        }
+        else if (isLoggedIn){
             System.out.println("""
                 create <NAME> - start new game
                 list - see current games
@@ -185,15 +197,6 @@ public class ClientUI {
                 logout - when you are done
                 quit - exit the chess client
                 help - show possible commands
-                """);
-        }
-        else if (isInGameplay) {
-            System.out.println("""
-                redraw - display the chessboard again
-                leave - remove self from game
-                move <STARTING SQUARE> <ENDING SQUARE> - make a chess move
-                resign - forfeit the game
-                highlight <PIECE SQUARE> - see legal moves for a given piece
                 """);
         }
         else{System.out.println("""
@@ -342,7 +345,8 @@ public class ClientUI {
                     System.out.println("Invalid input format");
                     break;
                 }
-                leave();
+                System.out.println("Leaving game");
+                isInGameplay = false;
                 break;
             case "MOVE":
                 if (arguments.length != 3){
@@ -359,7 +363,7 @@ public class ClientUI {
                 resign();
                 break;
             case "HIGHLIGHT":
-                if (arguments.length != 3){
+                if (arguments.length != 2){
                     System.out.println("Invalid input format");
                     break;
                 }
@@ -381,6 +385,7 @@ public class ClientUI {
         }
         try {
             currentGame.makeMove(new ChessMove(startPosition, endPosition, promotionPiece));
+            new DrawBoard(currentGame.getBoard(), isBlack, null, null);
         }
         catch(InvalidMoveException e){
             System.out.println("Invalid move. Please give it another go.");
@@ -389,22 +394,59 @@ public class ClientUI {
 
     private static void highlight(String square){
         ChessPosition position = getPosition(square);
+        System.out.println("got position");
         Collection<ChessMove> moves = currentGame.validMoves(position);
         Collection<ChessPosition> highlightPositions = new ArrayList<>();
         for (ChessMove move:moves){
             highlightPositions.add(move.getEndPosition());
         }
+        System.out.println("drawing board");
         new DrawBoard(currentGame.getBoard(), isBlack, position, highlightPositions);
 
-    }
-
-    private static void leave(){
-        isInGameplay = false;
     }
 
     private static void redraw(){
         new DrawBoard(currentGame.getBoard(), isBlack, null, null);
     }
 
+    private static void resign(){
+        System.out.println("Are you sure you want to admit defeat? (Y/N)");
+        String input = SCANNER.nextLine().toUpperCase();
+        if (input.equals("Y")){
+            System.out.println("This is where resigning should happen");
+        }
+        else if (input.equals("N")){
+            return;
+        }
+        else{
+            System.out.println("Invalid input.");
+            resign();
+        }
+    }
+
+    private static ChessPosition getPosition(String position){
+        position = position.toLowerCase();
+        char row;
+        char col;
+        if (position.length() != 2){
+            System.out.println("Invalid input.");
+        }
+        char char1 = position.charAt(0);
+        char char2 = position.charAt(1);
+        if (Character.isLetter(char1)){
+            row = char2;
+            col = char1;
+        }
+        else{
+            row = char1;
+            col = char2;
+        }
+        if (col < 'a' || col > 'h' || row < '1' || row > '8'){
+            System.out.println("Invalid input.");
+        }
+        int colInteger = col - 'a' + 1;
+        int rowInteger = Character.getNumericValue(row);
+        return new ChessPosition(rowInteger, colInteger);
+    }
 
 }
