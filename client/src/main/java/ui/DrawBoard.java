@@ -15,7 +15,7 @@ public class DrawBoard {
     private final int direction;
     private static final String PIECE_PADDING = " ";
 
-    public DrawBoard(ChessBoard chessboard, boolean isBlackPOV, Collection<ChessPosition> highlightedSquares) {
+    public DrawBoard(ChessBoard chessboard, boolean isBlackPOV, ChessPosition currentSquare, Collection<ChessPosition> highlightedSquares) {
         this.isBlackPOV = isBlackPOV;
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
@@ -45,6 +45,14 @@ public class DrawBoard {
                 }
                 ChessPosition position = new ChessPosition(row, col);
                 ChessPiece piece = chessboard.getPiece(position);
+                if (highlightedSquares != null && highlightedSquares.contains(position)){
+                    if (piece == null){
+                        out.print(SET_BG_COLOR_YELLOW);
+                    }
+                    else{
+                        out.print(SET_BG_COLOR_RED);
+                    }
+                }
                 String pieceCharacter = getUnicode(piece);
                 out.print(PIECE_PADDING + pieceCharacter + PIECE_PADDING);
                 out.print("\u001B[22m");

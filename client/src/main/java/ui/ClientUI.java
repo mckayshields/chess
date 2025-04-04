@@ -6,10 +6,7 @@ import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class ClientUI {
     private static ServerFacade facade;
@@ -292,7 +289,7 @@ public class ClientUI {
                 facade.joinGame(gameID, teamColor, authToken);
                 ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
                 currentGame = gamesMap.get(gameNumber).game();
-                new DrawBoard(board, isBlack, null);
+                new DrawBoard(board, isBlack, null, null);
                 isInGameplay = true;
             }
             catch(NullPointerException e){
@@ -309,7 +306,7 @@ public class ClientUI {
         try {
             ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
             currentGame = gamesMap.get(gameNumber).game();
-            new DrawBoard(board, false, null);
+            new DrawBoard(board, false, null, null);
         }
         catch(NullPointerException e){
             System.out.println("Sorry, game "+gameNumber+" does not exist.");
@@ -370,5 +367,44 @@ public class ClientUI {
                 break;
         }
     }
+
+    private static void movePiece(String startSquare,String endSquare){
+        ChessPiece.PieceType promotionPiece = null;
+        ChessPosition startPosition = getPosition(startSquare);
+        ChessPosition endPosition = getPosition(endSquare);
+        if (endPosition.getRow() == 1 || endPosition.getRow() == 8){
+            if (currentGame.getBoard().getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN){
+                System.out.println("Congratulations! Your pawn is getting promoted! Please input a piece name");
+                String input = SCANNER.nextLine().toUpperCase();
+                promotionPiece = ChessPiece.PieceType.valueOf(input);
+            }
+        }
+        try {
+            currentGame.makeMove(new ChessMove(startPosition, endPosition, promotionPiece));
+        }
+        catch(InvalidMoveException e){
+            System.out.println("Invalid move. Please give it another go.");
+        }
+    }
+
+    private static void highlight(String square){
+        ChessPosition position = getPosition(square);
+        Collection<ChessMove> moves = currentGame.validMoves(position);
+        Collection<ChessPosition> highlightPositions = new ArrayList<>();
+        for (ChessMove move:moves){
+            highlightPositions.add(move.getEndPosition());
+        }
+        new DrawBoard(currentGame.getBoard(), isBlack, position, highlightPositions);
+
+    }
+
+    private static void leave(){
+        isInGameplay = false;
+    }
+
+    private static void redraw(){
+        new DrawBoard(currentGame.getBoard(), isBlack, null, null);
+    }
+
 
 }
