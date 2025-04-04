@@ -1,8 +1,13 @@
+import chess.ChessBoard;
 import exception.ResponseException;
 import ui.ClientUI;
+import ui.DrawBoard;
 
 public class ClientMain {
     public static void main(String[] args) {
+        //ChessBoard board= new ChessBoard();
+        //board.resetBoard();
+        //new DrawBoard(board, false, null, null);
         var serverUrl = "http://localhost:8080";
         if (args.length == 1) {
             serverUrl = args[0];

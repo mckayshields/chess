@@ -251,6 +251,8 @@ public class ClientUI {
         try{
         System.out.println("Creating " + gameName);
         facade.createGame(gameName,authToken);
+        System.out.println("Available games:");
+        list();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

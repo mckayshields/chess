@@ -13,7 +13,7 @@ public class DrawBoard {
     private final int start;
     private final int end;
     private final int direction;
-    private static final String PIECE_PADDING = " ";
+    private static final String PIECE_PADDING = "\u2009\u2005";
 
     public DrawBoard(ChessBoard chessboard, boolean isBlackPOV, ChessPosition currentSquare, Collection<ChessPosition> highlightedSquares) {
         this.isBlackPOV = isBlackPOV;
@@ -34,8 +34,9 @@ public class DrawBoard {
         makeHeader(out);
         for (int row = start;  isBlackPOV ? row <= end : row >= end; row += direction) {
             out.print(SET_TEXT_COLOR_BLUE);
-            out.print(SET_BG_COLOR_DARK_GREY);
+            out.print("\u001B[49m"); //Default background
             out.print(PIECE_PADDING + row + PIECE_PADDING);
+            out.print(SET_BG_COLOR_DARK_GREY);
             for(int col = end;  isBlackPOV ? col >= start : col <= start; col += -1*direction) {
                 if(row % 2 == col % 2){
                     out.print(SET_BG_COLOR_DARK_GREY);
@@ -53,14 +54,14 @@ public class DrawBoard {
                         out.print(SET_BG_COLOR_RED);
                     }
                 }
-                if (position.equals(currentSquare)){
+                if (position.equals(currentSquare) && piece !=null){
                     out.print(SET_BG_COLOR_BLUE);
                 }
                 String pieceCharacter = getUnicode(piece);
                 out.print(PIECE_PADDING + pieceCharacter + PIECE_PADDING);
                 out.print("\u001B[22m");
             }
-            out.print(SET_BG_COLOR_DARK_GREY);
+            out.print("\u001B[49m"); //Default background
             out.print(SET_TEXT_COLOR_BLUE);
             out.print(PIECE_PADDING + row + PIECE_PADDING);
             out.println();
@@ -92,15 +93,12 @@ public class DrawBoard {
     }
 
     void makeHeader(PrintStream out){
+        out.print("\u001B[49m"); //Default background
         out.print(PIECE_PADDING + " " + PIECE_PADDING);
         String[] columns = {"A", "B", "C", "D", "E", "F", "G", "H"};
         for(int col = end;  isBlackPOV ? col >= start : col <= start; col += -1*direction){
             out.print(SET_TEXT_COLOR_BLUE);
-            out.print(SET_TEXT_BOLD);
-            out.print("\u2001\u200A" + columns[col-1] + "\u2001");
-            if (col%3 != 0){
-                out.print("\u200A");
-            }
+            out.print("\u2001" + columns[col-1] + "\u2005\u2005\u2005");
             out.print("\u001B[22m");
         }
         out.println();
