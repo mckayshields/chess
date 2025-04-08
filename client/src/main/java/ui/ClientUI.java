@@ -358,7 +358,7 @@ public class ClientUI {
                 movePiece(arguments[1], arguments[2]);
                 break;
             case "RESIGN":
-                if (arguments.length != 3){
+                if (arguments.length != 1){
                     System.out.println("Invalid input format");
                     break;
                 }
@@ -371,6 +371,8 @@ public class ClientUI {
                 }
                 highlight(arguments[1]);
                 break;
+            default:
+                System.out.println("Unknown command. Type 'HELP' to see a list of possible commands.");
         }
     }
 
@@ -396,13 +398,11 @@ public class ClientUI {
 
     private static void highlight(String square){
         ChessPosition position = getPosition(square);
-        System.out.println("got position");
         Collection<ChessMove> moves = currentGame.validMoves(position);
         Collection<ChessPosition> highlightPositions = new ArrayList<>();
         for (ChessMove move:moves){
             highlightPositions.add(move.getEndPosition());
         }
-        System.out.println("drawing board");
         new DrawBoard(currentGame.getBoard(), isBlack, position, highlightPositions);
 
     }
