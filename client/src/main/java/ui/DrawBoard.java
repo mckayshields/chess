@@ -15,7 +15,8 @@ public class DrawBoard {
     private final int direction;
     private static final String PIECE_PADDING = "\u2009\u2005";
 
-    public DrawBoard(ChessBoard chessboard, boolean isBlackPOV, ChessPosition currentSquare, Collection<ChessPosition> highlightedSquares) {
+    public DrawBoard(ChessBoard chessboard, boolean isBlackPOV, ChessPosition currentSquare,
+                     Collection<ChessPosition> highlightedSquares) {
         this.isBlackPOV = isBlackPOV;
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
@@ -48,7 +49,10 @@ public class DrawBoard {
                 ChessPiece piece = chessboard.getPiece(position);
                 if (highlightedSquares != null && highlightedSquares.contains(position)){
                     if (piece == null){
-                        out.print(SET_BG_COLOR_YELLOW);
+                        out.print(SET_BG_COLOR_GREEN);
+                        if (row %2 == col%2){
+                            out.print(SET_BG_COLOR_DARK_GREEN);
+                        }
                     }
                     else{
                         out.print(SET_BG_COLOR_RED);
