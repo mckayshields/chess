@@ -1,9 +1,16 @@
 package client.websocket;
+import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import exception.ResponseException;
+import websocket.commands.JoinCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -27,7 +34,12 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    serverMessageHandler.notify(serverMessage);
+                    ServerMessage.ServerMessageType type = serverMessage.getServerMessageType();
+                    switch (type){
+                        case LOAD_GAME -> serverMessageHandler.loadGame(new Gson().fromJson(message, LoadGameMessage.class));
+                        case ERROR -> serverMessageHandler.error(new Gson().fromJson(message, ErrorMessage.class));
+                        case NOTIFICATION -> serverMessageHandler.notify(new Gson().fromJson(message, NotificationMessage.class));
+                    }
                 }
             });
         }
@@ -41,9 +53,9 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void connect(String authToken, int gameID) throws ResponseException{
+    public void connect(String authToken, int gameID, ChessGame.TeamColor color) throws ResponseException{
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            var command = new JoinCommand(authToken, gameID, color);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         }
         catch(IOException e){
