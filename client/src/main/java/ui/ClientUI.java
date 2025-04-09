@@ -15,7 +15,7 @@ public class ClientUI {
     private static boolean isLoggedIn = false;
     private static boolean isInGameplay = false;
     private static boolean isBlack = false;
-    private static ChessGame currentGame;
+    private static GameData currentGame;
     private static String authToken;
     private static Map<Integer, GameData> gamesMap = new HashMap<>();
 
@@ -293,7 +293,7 @@ public class ClientUI {
                 System.out.println("Joining game "+gameNumber + " as " + teamColor + " player.");
                 facade.joinGame(gameID, teamColor, authToken);
                 ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
-                currentGame = gamesMap.get(gameNumber).game();
+                currentGame = gamesMap.get(gameNumber);
                 new DrawBoard(board, isBlack, null, null);
                 isInGameplay = true;
             }
@@ -307,10 +307,10 @@ public class ClientUI {
     }
     private static void observe(int gameNumber) {
         try{
-        System.out.println("Displaying game " + gameNumber+ "...");
+        System.out.println("Displaying game " + gameNumber + "...");
         try {
             ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
-            currentGame = gamesMap.get(gameNumber).game();
+            currentGame = gamesMap.get(gameNumber);
             new DrawBoard(board, false, null, null);
         }
         catch(NullPointerException e){
@@ -347,8 +347,7 @@ public class ClientUI {
                     System.out.println("Invalid input format");
                     break;
                 }
-                System.out.println("Leaving game");
-                isInGameplay = false;
+                leave();
                 break;
             case "MOVE":
                 if (arguments.length != 3){
@@ -381,15 +380,15 @@ public class ClientUI {
         ChessPosition startPosition = getPosition(startSquare);
         ChessPosition endPosition = getPosition(endSquare);
         if (endPosition.getRow() == 1 || endPosition.getRow() == 8){
-            if (currentGame.getBoard().getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN){
+            if (currentGame.game().getBoard().getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN){
                 System.out.println("Congratulations! Your pawn is getting promoted! Please input a piece name");
                 String input = SCANNER.nextLine().toUpperCase();
                 promotionPiece = ChessPiece.PieceType.valueOf(input);
             }
         }
         try {
-            currentGame.makeMove(new ChessMove(startPosition, endPosition, promotionPiece));
-            new DrawBoard(currentGame.getBoard(), isBlack, null, null);
+            currentGame.game().makeMove(new ChessMove(startPosition, endPosition, promotionPiece));
+            new DrawBoard(currentGame.game().getBoard(), isBlack, null, null);
         }
         catch(InvalidMoveException e){
             System.out.println("Invalid move. Please give it another go.");
@@ -398,17 +397,22 @@ public class ClientUI {
 
     private static void highlight(String square){
         ChessPosition position = getPosition(square);
-        Collection<ChessMove> moves = currentGame.validMoves(position);
+        Collection<ChessMove> moves = currentGame.game().validMoves(position);
         Collection<ChessPosition> highlightPositions = new ArrayList<>();
         for (ChessMove move:moves){
             highlightPositions.add(move.getEndPosition());
         }
-        new DrawBoard(currentGame.getBoard(), isBlack, position, highlightPositions);
+        new DrawBoard(currentGame.game().getBoard(), isBlack, position, highlightPositions);
 
     }
 
     private static void redraw(){
-        new DrawBoard(currentGame.getBoard(), isBlack, null, null);
+        new DrawBoard(currentGame.game().getBoard(), isBlack, null, null);
+    }
+
+    private static void leave(){
+        System.out.println("Leaving game");
+        isInGameplay = false;
     }
 
     private static void resign(){
@@ -426,29 +430,28 @@ public class ClientUI {
         }
     }
 
-    private static ChessPosition getPosition(String position){
+    private static ChessPosition getPosition(String position) {
         position = position.toLowerCase();
         char row;
         char col;
-        if (position.length() != 2){
+        if (position.length() != 2) {
             System.out.println("Invalid input.");
         }
         char char1 = position.charAt(0);
         char char2 = position.charAt(1);
-        if (Character.isLetter(char1)){
+        if (Character.isLetter(char1)) {
             row = char2;
             col = char1;
-        }
-        else{
+        } else {
             row = char1;
             col = char2;
         }
-        if (col < 'a' || col > 'h' || row < '1' || row > '8'){
+        if (col < 'a' || col > 'h' || row < '1' || row > '8') {
             System.out.println("Invalid input.");
+            return null;
         }
         int colInteger = col - 'a' + 1;
         int rowInteger = Character.getNumericValue(row);
         return new ChessPosition(rowInteger, colInteger);
     }
-
 }
