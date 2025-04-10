@@ -1,7 +1,6 @@
 package websocket.commands;
 
 import chess.ChessGame;
-import chess.ChessMove;
 
 public class JoinCommand extends UserGameCommand{
     private final ChessGame.TeamColor color;

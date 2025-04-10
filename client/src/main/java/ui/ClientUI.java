@@ -19,7 +19,6 @@ public class ClientUI {
     private static boolean isBlack = false;
     private static GameData currentGame;
     private static String authToken;
-    private final WebSocketFacade wsf;
     private static Map<Integer, GameData> gamesMap = new HashMap<>();
 
     public ClientUI(String url){
@@ -414,7 +413,7 @@ public class ClientUI {
     }
 
     private static void leave(){
-        wsf.leave(authToken, currentGame.gameID());
+        //wsf.leave(authToken, currentGame.gameID());
         System.out.println("Leaving game");
         isInGameplay = false;
     }

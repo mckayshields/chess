@@ -3,6 +3,8 @@ import chess.ChessGame;
 import dataaccess.*;
 import exception.ResponseException;
 import model.*;
+
+import javax.xml.crypto.Data;
 import java.util.Collection;
 
 public class GameService {
@@ -86,5 +88,9 @@ public class GameService {
 
     public void update(int gameID, GameData gameData) throws DataAccessException{
         gameDataAccess.update(gameID, gameData);
+    }
+
+    public GameData getGame(int gameID) throws DataAccessException {
+        return gameDataAccess.getGame(gameID);
     }
 }
