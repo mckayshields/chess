@@ -68,7 +68,7 @@ public class WebSocketHandler {
             String username = userService.getUsername(command.getAuthToken());
             GameData gameData = gameService.getGame(command.getGameID());
             GameData newGame = getGameData(username, gameData);
-            gameService.update(command.getGameID(), newGame)
+            gameService.update(command.getGameID(), newGame);
             connections.remove(username);
             String message = "Player " + username + " has left the game. They will be missed dearly.";
             connections.broadcast(username, new NotificationMessage(message));

@@ -473,7 +473,7 @@ public class ClientUI {
         try {
             ChessMove move = new ChessMove(startPosition, endPosition, promotionPiece);
             currentGame.game().makeMove(move);
-            new DrawBoard(currentGame.game().getBoard(), isBlack, null, null);
+            //new DrawBoard(currentGame.game().getBoard(), isBlack, null, null);
             wsf.makeMove(authToken, currentGame.gameID(), move);
         }
         catch(InvalidMoveException e){

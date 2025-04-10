@@ -2,6 +2,7 @@ package server;
 
 import dataaccess.*;
 import exception.ResponseException;
+import server.websocket.WebSocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -21,6 +22,7 @@ public class Server {
     UserHandler userHandler;
     GameHandler gameHandler;
     ClearHandler clearHandler;
+    WebSocketHandler wsHandler;
 
     public Server(){
         try{
@@ -39,6 +41,7 @@ public class Server {
         userHandler = new UserHandler(userService);
         gameHandler = new GameHandler(gameService);
         clearHandler = new ClearHandler(clearService);
+        wsHandler = new WebSocketHandler(userService, gameService);
 
         try { DatabaseManager.createDatabase(); } catch (DataAccessException ex) {
             throw new RuntimeException(ex);
@@ -59,6 +62,8 @@ public class Server {
         Spark.post("/game", gameHandler::createHandler);
         Spark.put("/game", gameHandler::joinHandler);
         Spark.delete("/db", clearHandler::clearHandler);
+
+        Spark.webSocket("/ws", wsHandler);
 
         Spark.exception(ResponseException.class, (e, request, response) -> {
             response.type("application/json");
