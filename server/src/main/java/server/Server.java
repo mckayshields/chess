@@ -51,10 +51,11 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        Spark.staticFiles.location("web");
+        Spark.staticFiles.location("public");
 
 
         // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/ws", wsHandler);
         Spark.post("/user", userHandler::registerHandler);
         Spark.post("/session", userHandler::loginHandler);
         Spark.delete("/session", userHandler::logoutHandler);
@@ -62,8 +63,6 @@ public class Server {
         Spark.post("/game", gameHandler::createHandler);
         Spark.put("/game", gameHandler::joinHandler);
         Spark.delete("/db", clearHandler::clearHandler);
-
-        Spark.webSocket("/ws", wsHandler);
 
         Spark.exception(ResponseException.class, (e, request, response) -> {
             response.type("application/json");

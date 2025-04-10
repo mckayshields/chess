@@ -1,8 +1,10 @@
 package server.websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -15,13 +17,13 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
-import java.io.IOException;
 
 @WebSocket
 public class WebSocketHandler {
     private final UserService userService;
     private final GameService gameService;
     private final ConnectionManager connections = new ConnectionManager();
+    private boolean hasResigned;
 
     public WebSocketHandler(UserService userService, GameService gameService){
         this.userService = userService;
@@ -29,22 +31,37 @@ public class WebSocketHandler {
     }
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException{
-        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-        switch (command.getCommandType()){
-            case CONNECT -> connect(command, session);
-            case LEAVE -> leave(command, session);
-            case RESIGN -> resign(command, session);
-            case MAKE_MOVE -> move((MakeMoveCommand) command, session);
+    public void onMessage(Session session, String message){
+        JsonObject json = new Gson().fromJson(message, JsonObject.class);
+        String type = json.get("commandType").getAsString();
+        UserGameCommand.CommandType commandType = UserGameCommand.CommandType.valueOf(type);
+        switch (commandType) {
+            case CONNECT -> {
+                UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+                connect(command, session);
+            }
+            case LEAVE -> {
+                UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+                leave(command, session);
+            }
+            case RESIGN -> {
+                UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+                resign(command, session);
+            }
+            case MAKE_MOVE -> {
+                MakeMoveCommand command = new Gson().fromJson(message, MakeMoveCommand.class);
+                move(command, session);
+            }
             default -> sendError(session, "Error: command type invalid");
         }
     }
 
     private void connect(UserGameCommand command, Session session){
         try {
+            hasResigned = false;
             String username = userService.getUsername(command.getAuthToken());
             GameData gameData = gameService.getGame(command.getGameID());
-            connections.add(username, session);
+            connections.add(username, session, command.getGameID());
             String message;
             if (username.equals(gameData.whiteUsername())){
                 message = "Player " + username + " has joined as WHITE.";
@@ -55,8 +72,8 @@ public class WebSocketHandler {
             else{
                 message = "Player " + username + " has joined as an OBSERVER.";
             }
-            connections.broadcast(username, new NotificationMessage(message));
-            //connections.broadcastGame(new LoadGameMessage(gameData));
+            connections.broadcast(username, new NotificationMessage(message), gameData.gameID());
+            connections.sendGame(username, new LoadGameMessage(gameData));
 
         } catch (Exception e) {
             sendError(session, "Error: " + e.getMessage());
@@ -71,7 +88,7 @@ public class WebSocketHandler {
             gameService.update(command.getGameID(), newGame);
             connections.remove(username);
             String message = "Player " + username + " has left the game. They will be missed dearly.";
-            connections.broadcast(username, new NotificationMessage(message));
+            connections.broadcast(username, new NotificationMessage(message), command.getGameID());
         } catch (Exception e) {
             sendError(session, "Error: " + e.getMessage());
         }
@@ -90,7 +107,6 @@ public class WebSocketHandler {
         else{
             newGame = new GameData(gameData.gameID(), gameData.whiteUsername(),  gameData.blackUsername(),
                     gameData.gameName(), gameData.game());
-
         }
         return newGame;
     }
@@ -100,10 +116,19 @@ public class WebSocketHandler {
             String username = userService.getUsername(command.getAuthToken());
             int gameID = command.getGameID();
             GameData gameData = gameService.getGame(gameID);
+            if (hasResigned){
+                sendError(session, "Error: game is now over.");
+                return;
+            }
+            if (!username.equals(gameData.whiteUsername()) && !username.equals(gameData.blackUsername())){
+                sendError(session, "Error: observer cannot resign.");
+                return;
+            }
+            hasResigned = true;
             gameData.game().setTeamTurn(null);
             gameService.update(gameID, gameData);
             String message = "Player " + username + " has admitted defeat and resigned.";
-            connections.broadcast(username, new NotificationMessage(message));
+            connections.broadcast(null, new NotificationMessage(message), gameID);
         }
         catch (Exception e){
             sendError(session,"Error: "+ e.getMessage());
@@ -112,20 +137,34 @@ public class WebSocketHandler {
 
     private void move(MakeMoveCommand command, Session session){
         try {
+            if(hasResigned){
+                sendError(session, "Error: game is now over.");
+                return;
+            }
             String username = userService.getUsername(command.getAuthToken());
             int gameID = command.getGameID();
             ChessMove move = command.getMove();
             ChessPosition startPosition = move.getStartPosition();
             ChessPosition endPosition = move.getEndPosition();
             GameData gameData = gameService.getGame(gameID);
+            ChessGame.TeamColor turnColor = gameData.game().getTeamTurn();
+            ChessGame.TeamColor requestcolor = null;
+            if (username.equals(gameData.whiteUsername())){
+                requestcolor = ChessGame.TeamColor.WHITE;
+            } else if (username.equals(gameData.blackUsername())) {
+                requestcolor = ChessGame.TeamColor.BLACK;
+            }
+            if (turnColor != requestcolor){
+                sendError(session, "Error: You cannot make moves at this time.");
+                return;
+            }
             String piece = gameData.game().getBoard().getPiece(startPosition).getPieceType().toString();
             gameData.game().makeMove(move);
             gameService.update(gameID, gameData);
             String message = "Player " + username + " has moved their " + piece + " from " + startPosition.toString()
                     + " to " + endPosition.toString();
-            connections.broadcast(username, new NotificationMessage(message));
+            connections.broadcast(username, new NotificationMessage(message), command.getGameID());
             connections.broadcastGame(new LoadGameMessage(gameData));
-
         } catch (Exception e){
             sendError(session, "Error: " + e.getMessage());
         }

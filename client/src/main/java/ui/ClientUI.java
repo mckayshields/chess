@@ -40,6 +40,7 @@ public class ClientUI {
                 GameData chessGame = loadGameMessage.getGame();
                 currentGame = chessGame;
                 new DrawBoard(chessGame.game().getBoard(), isBlack, null, null);
+                System.out.print(getHeader());
             }
 
             @Override
@@ -335,7 +336,7 @@ public class ClientUI {
                 facade.joinGame(gameID, teamColor, authToken);
                 ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
                 currentGame = gamesMap.get(gameNumber);
-                new DrawBoard(board, isBlack, null, null);
+                //new DrawBoard(board, isBlack, null, null);
                 isInGameplay = true;
                 wsf.connect(authToken, currentGame.gameID());
             }
