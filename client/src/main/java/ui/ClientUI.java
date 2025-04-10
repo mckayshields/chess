@@ -1,5 +1,4 @@
 package ui;
-
 import chess.*;
 import client.ServerFacade;
 import client.websocket.ServerMessageHandler;
@@ -12,7 +11,6 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import static ui.EscapeSequences.*;
 import java.util.*;
-
 public class ClientUI {
     private static ServerFacade facade;
     private static WebSocketFacade wsf;
@@ -38,6 +36,7 @@ public class ClientUI {
             public void loadGame(LoadGameMessage loadGameMessage) {
                 GameData chessGame = loadGameMessage.getGame();
                 currentGame = chessGame;
+                System.out.println();
                 new DrawBoard(chessGame.game().getBoard(), isBlack, null, null);
                 System.out.print(getHeader());
             }
@@ -53,7 +52,6 @@ public class ClientUI {
             System.out.println(e.getMessage());
         }
     }
-
     public void run() throws ResponseException {
         System.out.println("♕ Welcome to 240 Chess. We're happy you are here. ♕");
         System.out.println("Type 'help' to get started.");
@@ -62,9 +60,7 @@ public class ClientUI {
             System.out.print(getHeader());
             String input = SCANNER.nextLine();
             handleCommand(input);
-        }
-    }
-
+        }}
     private static String getHeader(){
         if (isInGameplay || isObserving){
             return "[GAME_PLAY] >>> ";
@@ -74,9 +70,7 @@ public class ClientUI {
         }
         else{
             return "[LOGGED_OUT] >>> ";
-        }
-    }
-
+        }}
     private static void handleCommand(String input)  {
         if (isInGameplay){
             gameplay(input);
@@ -89,9 +83,7 @@ public class ClientUI {
         }
         else{
             beforeLogin(input);
-        }
-    }
-
+        }}
     private static void beforeLogin(String input){
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
@@ -138,9 +130,7 @@ public class ClientUI {
                 break;
             default:
                 System.out.println("Unknown command. Type 'HELP' to see a list of possible commands.");
-        }
-    }
-
+        }}
     private static void afterLogin(String input) {
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
@@ -177,7 +167,6 @@ public class ClientUI {
                 catch(NumberFormatException e){
                     System.out.println(e.getMessage());
                 }
-
             case "OBSERVE":
                 if (arguments.length != 2){
                     System.out.println("Invalid input format");
@@ -209,9 +198,7 @@ public class ClientUI {
                 break;
             default:
                 System.out.println("Unknown command. Type 'HELP' to see a list of possible commands.");
-        }
-    }
-
+        }}
     private static void displayHelpMenu(){
         if (isInGameplay) {
             System.out.println("""
@@ -247,7 +234,6 @@ public class ClientUI {
                 help - show possible commands
                 """);}
     }
-
     private static void register(String username, String password, String email)  {
         try{
         facade.register(username, password, email);
@@ -255,9 +241,7 @@ public class ClientUI {
         login(username, password);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-        }
-    }
-
+        }}
     private static void login(String username, String password) {
         try{
             AuthData authData = facade.login(username, password);
@@ -268,10 +252,7 @@ public class ClientUI {
             System.out.println("     Type 'help' for more options.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
-        }
-
-    }
-
+        }}
     private static void logout(){
         try{
         facade.logout(authToken);
@@ -280,14 +261,11 @@ public class ClientUI {
         authToken = null;
         } catch (Exception e) {
             System.out.println(e.getMessage());
-        }
-    }
-
+        }}
     private static void quit()  {
         System.out.println("Quitting. Sad to see you go!");
         isRunning = false;
     }
-
     private static void create(String gameName) {
         try{
         System.out.println("Creating " + gameName);
@@ -296,9 +274,7 @@ public class ClientUI {
         list();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-        }
-    }
-
+        }}
     private static void list() {
         try{
         GAMES_MAP.clear();
@@ -316,12 +292,9 @@ public class ClientUI {
             System.out.println();
             GAMES_MAP.put(gameNumber, game);
             gameNumber++;
-        }
-        } catch (Exception e) {
+        }} catch (Exception e) {
             System.out.println(e.getMessage());
-        }
-    }
-
+        }}
     private static void join(int gameNumber, String teamColor) {
         try{
         if (!teamColor.equals("BLACK") && !teamColor.equals("WHITE")){
@@ -341,12 +314,10 @@ public class ClientUI {
             }
             catch(NullPointerException e){
                 System.out.println("Sorry, game "+gameNumber+" does not exist.");
-            }
-        }
+            }}
         } catch (Exception e) {
             System.out.println(e.getMessage());
-        }
-    }
+        }}
     private static void observe(int gameNumber) {
         try{
         System.out.println("Displaying game " + gameNumber + "...");
@@ -359,12 +330,9 @@ public class ClientUI {
         }
         catch(NullPointerException e){
             System.out.println("Sorry, game "+gameNumber+" does not exist.");
-        }
-        } catch (Exception e) {
+        }} catch (Exception e) {
             System.out.println(e.getMessage());
-        }
-    }
-
+        }}
     private static void gameplay(String input) {
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
@@ -416,9 +384,7 @@ public class ClientUI {
                 break;
             default:
                 System.out.println("Unknown command. Type 'HELP' to see a list of possible commands.");
-        }
-    }
-
+        }}
     private static void observing(String input) {
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
@@ -429,37 +395,30 @@ public class ClientUI {
             case "LEAVE":
                 if (arguments.length != 1){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 leave();
                 break;
-
             case "HELP":
                 if (arguments.length != 1){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 displayHelpMenu();
                 break;
             case "HIGHLIGHT":
                 if (arguments.length != 2){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 highlight(arguments[1]);
                 break;
             case "REDRAW":
                 if (arguments.length != 1){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 redraw();
                 break;
             default:
                 System.out.println("Unknown command. Type 'HELP' to see a list of possible commands.");
-        }
-    }
-
+        }}
     private static void movePiece(String startSquare,String endSquare){
         ChessPiece.PieceType promotionPiece = null;
         ChessPosition startPosition = getPosition(startSquare);
@@ -469,8 +428,7 @@ public class ClientUI {
                 System.out.println("Congratulations! Your pawn is getting promoted! Please input a piece name");
                 String input = SCANNER.nextLine().toUpperCase();
                 promotionPiece = ChessPiece.PieceType.valueOf(input);
-            }
-        }
+            }}
         try {
             ChessMove move = new ChessMove(startPosition, endPosition, promotionPiece);
             currentGame.game().makeMove(move);
@@ -481,9 +439,7 @@ public class ClientUI {
             System.out.println("Invalid move. Please give it another go.");
         } catch (ResponseException e) {
             System.out.println(e.getMessage());
-        }
-    }
-
+        }}
     private static void highlight(String square){
         ChessPosition position = getPosition(square);
         Collection<ChessMove> moves = currentGame.game().validMoves(position);
@@ -492,13 +448,10 @@ public class ClientUI {
             highlightPositions.add(move.getEndPosition());
         }
         new DrawBoard(currentGame.game().getBoard(), isBlack, position, highlightPositions);
-
     }
-
     private static void redraw(){
         new DrawBoard(currentGame.game().getBoard(), isBlack, null, null);
     }
-
     private static void leave(){
         try{
             System.out.println("Leaving game");
@@ -507,10 +460,7 @@ public class ClientUI {
             isObserving = false;
         } catch (ResponseException e) {
             System.out.println(e.getMessage());
-        }
-
-    }
-
+        }}
     private static void resign(){
         System.out.println("Are you sure you want to admit defeat? (Y/N)");
         String input = SCANNER.nextLine().toUpperCase();
@@ -520,12 +470,9 @@ public class ClientUI {
                 wsf.resign(authToken, currentGame.gameID());
             } catch (Exception e){
                 System.out.println(e.getMessage());
-            }
-        } else if (!input.equals("N")) {
+            }} else if (!input.equals("N")) {
             System.out.println("Invalid input.");
-        }
-    }
-
+        }}
     private static ChessPosition getPosition(String position) {
         position = position.toLowerCase();
         char row;
@@ -549,5 +496,4 @@ public class ClientUI {
         int colInteger = col - 'a' + 1;
         int rowInteger = Character.getNumericValue(row);
         return new ChessPosition(rowInteger, colInteger);
-    }
-}
+    }}

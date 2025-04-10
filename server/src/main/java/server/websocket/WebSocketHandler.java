@@ -160,11 +160,42 @@ public class WebSocketHandler {
             }
             String piece = gameData.game().getBoard().getPiece(startPosition).getPieceType().toString();
             gameData.game().makeMove(move);
+
             gameService.update(gameID, gameData);
             String message = "Player " + username + " has moved their " + piece + " from " + startPosition.toString()
                     + " to " + endPosition.toString();
             connections.broadcast(username, new NotificationMessage(message), command.getGameID());
             connections.broadcastGame(new LoadGameMessage(gameData));
+            if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)){
+                connections.broadcast(null,
+                        new NotificationMessage(gameData.whiteUsername() +
+                                " (WHITE) is in checkmate."), command.getGameID());
+            }
+            else if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)){
+                connections.broadcast(null,
+                        new NotificationMessage(gameData.blackUsername() +
+                                " (BLACK) is in checkmate."), command.getGameID());
+            }
+            else if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)){
+                connections.broadcast(null,
+                        new NotificationMessage(gameData.whiteUsername() +
+                                " (WHITE) is in check."), command.getGameID());
+            }
+            else if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)){
+                connections.broadcast(null,
+                        new NotificationMessage(gameData.blackUsername() +
+                                " (BLACK) is in check."), command.getGameID());
+            }
+            if (gameData.game().isInStalemate(ChessGame.TeamColor.WHITE)){
+                connections.broadcast(null,
+                        new NotificationMessage(gameData.whiteUsername() +
+                                " (WHITE) is in stalemate."), command.getGameID());
+            }
+            if (gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)){
+                connections.broadcast(null,
+                        new NotificationMessage(gameData.blackUsername() +
+                                " (BLACK) is in stalemate."), command.getGameID());
+            }
         } catch (Exception e){
             sendError(session, "Error: " + e.getMessage());
         }
@@ -179,4 +210,3 @@ public class WebSocketHandler {
         }
     }
 }
-
