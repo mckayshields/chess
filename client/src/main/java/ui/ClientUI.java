@@ -7,7 +7,6 @@ import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
-import client.websocket.WebSocketFacade;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -25,7 +24,7 @@ public class ClientUI {
     private static boolean isBlack = false;
     private static GameData currentGame;
     private static String authToken;
-    private static final Map<Integer, GameData> gamesMap = new HashMap<>();
+    private static final Map<Integer, GameData> GAMES_MAP = new HashMap<>();
 
     public ClientUI(String url){
         facade = new ServerFacade(url);
@@ -302,7 +301,7 @@ public class ClientUI {
 
     private static void list() {
         try{
-        gamesMap.clear();
+        GAMES_MAP.clear();
         Collection<GameData> games = facade.listGames(authToken).games();
         if (games.isEmpty()){
             System.out.println("There are no games running. Please create a game with the following command:");
@@ -315,7 +314,7 @@ public class ClientUI {
             System.out.println("       WHITE: " + game.whiteUsername());
             System.out.println("       BLACK: " + game.blackUsername());
             System.out.println();
-            gamesMap.put(gameNumber, game);
+            GAMES_MAP.put(gameNumber, game);
             gameNumber++;
         }
         } catch (Exception e) {
@@ -331,11 +330,11 @@ public class ClientUI {
         else {
             isBlack = teamColor.equals("BLACK");
             try{
-                int gameID = gamesMap.get(gameNumber).gameID();
+                int gameID = GAMES_MAP.get(gameNumber).gameID();
                 System.out.println("Joining game "+gameNumber + " as " + teamColor + " player.");
                 facade.joinGame(gameID, teamColor, authToken);
-                ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
-                currentGame = gamesMap.get(gameNumber);
+                ChessBoard board = GAMES_MAP.get(gameNumber).game().getBoard();
+                currentGame = GAMES_MAP.get(gameNumber);
                 //new DrawBoard(board, isBlack, null, null);
                 isInGameplay = true;
                 wsf.connect(authToken, currentGame.gameID());
@@ -352,8 +351,8 @@ public class ClientUI {
         try{
         System.out.println("Displaying game " + gameNumber + "...");
         try {
-            ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
-            currentGame = gamesMap.get(gameNumber);
+            ChessBoard board = GAMES_MAP.get(gameNumber).game().getBoard();
+            currentGame = GAMES_MAP.get(gameNumber);
             new DrawBoard(board, false, null, null);
             wsf.connect(authToken, currentGame.gameID());
             isObserving = true;
@@ -427,20 +426,6 @@ public class ClientUI {
         }
         String inputCommand = arguments[0].toUpperCase();
         switch (inputCommand){
-            case "HELP":
-                if (arguments.length != 1){
-                    System.out.println("Invalid input format");
-                    break;
-                }
-                displayHelpMenu();
-                break;
-            case "REDRAW":
-                if (arguments.length != 1){
-                    System.out.println("Invalid input format");
-                    break;
-                }
-                redraw();
-                break;
             case "LEAVE":
                 if (arguments.length != 1){
                     System.out.println("Invalid input format");
@@ -448,12 +433,27 @@ public class ClientUI {
                 }
                 leave();
                 break;
+
+            case "HELP":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                displayHelpMenu();
+                break;
             case "HIGHLIGHT":
                 if (arguments.length != 2){
                     System.out.println("Invalid input format");
                     break;
                 }
                 highlight(arguments[1]);
+                break;
+            case "REDRAW":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                redraw();
                 break;
             default:
                 System.out.println("Unknown command. Type 'HELP' to see a list of possible commands.");

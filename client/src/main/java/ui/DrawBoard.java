@@ -47,17 +47,7 @@ public class DrawBoard {
                 }
                 ChessPosition position = new ChessPosition(row, col);
                 ChessPiece piece = chessboard.getPiece(position);
-                if (highlightedSquares != null && highlightedSquares.contains(position)){
-                    if (piece == null){
-                        out.print(SET_BG_COLOR_GREEN);
-                        if (row %2 == col%2){
-                            out.print(SET_BG_COLOR_DARK_GREEN);
-                        }
-                    }
-                    else{
-                        out.print(SET_BG_COLOR_RED);
-                    }
-                }
+                setHighlightColor(highlightedSquares, piece, position, row, col);
                 if (position.equals(currentSquare) && piece !=null){
                     out.print(SET_BG_COLOR_BLUE);
                 }
@@ -106,6 +96,21 @@ public class DrawBoard {
             out.print("\u001B[22m");
         }
         out.println();
+    }
+
+    void setHighlightColor(Collection<ChessPosition> highlightedSquares, ChessPiece piece, ChessPosition position,
+                           int row, int col){
+        if (highlightedSquares != null && highlightedSquares.contains(position)){
+            if (piece == null){
+                out.print(SET_BG_COLOR_GREEN);
+                if (row %2 == col%2){
+                    out.print(SET_BG_COLOR_DARK_GREEN);
+                }
+            }
+            else{
+                out.print(SET_BG_COLOR_RED);
+            }
+        }
     }
 
 }
