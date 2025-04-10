@@ -76,4 +76,13 @@ public class UserService {
             throw new ResponseException(500, "Error: " +e.getMessage());
         }
     }
+
+    public String getUsername(String authToken) throws ResponseException{
+        try {
+            return authDataAccess.getAuth(authToken).username();
+        }
+        catch(DataAccessException e){
+            throw new ResponseException(500, "Error: " + e.getMessage());
+        }
+    }
 }

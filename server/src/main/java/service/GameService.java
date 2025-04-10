@@ -83,4 +83,8 @@ public class GameService {
             throw new ResponseException(500, "Error: " +e.getMessage());
         }
     }
+
+    public void update(int gameID, GameData gameData) throws DataAccessException{
+        gameDataAccess.update(gameID, gameData);
+    }
 }

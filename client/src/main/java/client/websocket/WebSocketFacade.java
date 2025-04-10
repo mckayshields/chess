@@ -2,8 +2,6 @@ package client.websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import exception.ResponseException;
 import websocket.commands.JoinCommand;
 import websocket.commands.MakeMoveCommand;
