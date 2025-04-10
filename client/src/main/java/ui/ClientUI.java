@@ -2,27 +2,56 @@ package ui;
 
 import chess.*;
 import client.ServerFacade;
+import client.websocket.ServerMessageHandler;
 import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import client.websocket.WebSocketFacade;
-
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import static ui.EscapeSequences.*;
 import java.util.*;
 
 public class ClientUI {
     private static ServerFacade facade;
+    private static WebSocketFacade wsf;
     private static final Scanner SCANNER = new Scanner(System.in);
     private static boolean isRunning = true;
     private static boolean isLoggedIn = false;
     private static boolean isInGameplay = false;
+    private static boolean isObserving = false;
     private static boolean isBlack = false;
     private static GameData currentGame;
     private static String authToken;
-    private static Map<Integer, GameData> gamesMap = new HashMap<>();
+    private static final Map<Integer, GameData> gamesMap = new HashMap<>();
 
     public ClientUI(String url){
         facade = new ServerFacade(url);
+        ServerMessageHandler serverMessageHandler = new ServerMessageHandler() {
+            @Override
+            public void notify(NotificationMessage notificationMessage) {
+                System.out.println(SET_BG_COLOR_BLUE + notificationMessage.getMessage());
+            }
+
+            @Override
+            public void loadGame(LoadGameMessage loadGameMessage) {
+                GameData chessGame = loadGameMessage.getGame();
+                currentGame = chessGame;
+                new DrawBoard(chessGame.game().getBoard(), isBlack, null, null);
+            }
+
+            @Override
+            public void error(ErrorMessage errorMessage) {
+                System.out.println(SET_BG_COLOR_RED + errorMessage.getErrorMessage());
+            }
+        };
+        try {
+            wsf = new WebSocketFacade(url, serverMessageHandler);
+        }catch (ResponseException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public void run() throws ResponseException {
@@ -37,7 +66,7 @@ public class ClientUI {
     }
 
     private static String getHeader(){
-        if (isInGameplay){
+        if (isInGameplay || isObserving){
             return "[GAME_PLAY] >>> ";
         }
         else if (isLoggedIn){
@@ -48,9 +77,12 @@ public class ClientUI {
         }
     }
 
-    private static void handleCommand(String input) throws ResponseException {
+    private static void handleCommand(String input)  {
         if (isInGameplay){
             gameplay(input);
+        }
+        else if (isObserving){
+            observing(input);
         }
         else if (isLoggedIn){
             afterLogin(input);
@@ -60,7 +92,7 @@ public class ClientUI {
         }
     }
 
-    private static void beforeLogin(String input) throws ResponseException {
+    private static void beforeLogin(String input){
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
             return;
@@ -109,7 +141,7 @@ public class ClientUI {
         }
     }
 
-    private static void afterLogin(String input) throws ResponseException {
+    private static void afterLogin(String input) {
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
             return;
@@ -190,6 +222,13 @@ public class ClientUI {
                 highlight <PIECE SQUARE> - see legal moves for a given piece
                 """);
         }
+        else if (isObserving){
+            System.out.println("""
+                redraw - display the chessboard again
+                leave - remove self from game
+                highlight <PIECE SQUARE> - see legal moves for a given piece
+                """);
+        }
         else if (isLoggedIn){
             System.out.println("""
                 create <NAME> - start new game
@@ -209,7 +248,7 @@ public class ClientUI {
                 """);}
     }
 
-    private static void register(String username, String password, String email) throws ResponseException {
+    private static void register(String username, String password, String email)  {
         try{
         facade.register(username, password, email);
         System.out.println("Registering " + username + "... ");
@@ -219,7 +258,7 @@ public class ClientUI {
         }
     }
 
-    private static void login(String username, String password) throws ResponseException {
+    private static void login(String username, String password) {
         try{
             AuthData authData = facade.login(username, password);
             System.out.println("Logging in " + username + "... ");
@@ -233,7 +272,7 @@ public class ClientUI {
 
     }
 
-    private static void logout() throws ResponseException {
+    private static void logout(){
         try{
         facade.logout(authToken);
         System.out.println("Logging out...");
@@ -249,7 +288,7 @@ public class ClientUI {
         isRunning = false;
     }
 
-    private static void create(String gameName) throws ResponseException {
+    private static void create(String gameName) {
         try{
         System.out.println("Creating " + gameName);
         facade.createGame(gameName,authToken);
@@ -260,7 +299,7 @@ public class ClientUI {
         }
     }
 
-    private static void list() throws ResponseException {
+    private static void list() {
         try{
         gamesMap.clear();
         Collection<GameData> games = facade.listGames(authToken).games();
@@ -283,7 +322,7 @@ public class ClientUI {
         }
     }
 
-    private static void join(int gameNumber, String teamColor) throws ResponseException {
+    private static void join(int gameNumber, String teamColor) {
         try{
         if (!teamColor.equals("BLACK") && !teamColor.equals("WHITE")){
             System.out.println("Invalid Team Color");
@@ -298,6 +337,7 @@ public class ClientUI {
                 currentGame = gamesMap.get(gameNumber);
                 new DrawBoard(board, isBlack, null, null);
                 isInGameplay = true;
+                wsf.connect(authToken, currentGame.gameID());
             }
             catch(NullPointerException e){
                 System.out.println("Sorry, game "+gameNumber+" does not exist.");
@@ -314,6 +354,8 @@ public class ClientUI {
             ChessBoard board = gamesMap.get(gameNumber).game().getBoard();
             currentGame = gamesMap.get(gameNumber);
             new DrawBoard(board, false, null, null);
+            wsf.connect(authToken, currentGame.gameID());
+            isObserving = true;
         }
         catch(NullPointerException e){
             System.out.println("Sorry, game "+gameNumber+" does not exist.");
@@ -323,7 +365,7 @@ public class ClientUI {
         }
     }
 
-    private static void gameplay(String input) throws ResponseException {
+    private static void gameplay(String input) {
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
             return;
@@ -377,6 +419,46 @@ public class ClientUI {
         }
     }
 
+    private static void observing(String input) {
+        String[] arguments = input.split("\\s+");
+        if (arguments.length == 0){
+            return;
+        }
+        String inputCommand = arguments[0].toUpperCase();
+        switch (inputCommand){
+            case "HELP":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                displayHelpMenu();
+                break;
+            case "REDRAW":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                redraw();
+                break;
+            case "LEAVE":
+                if (arguments.length != 1){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                leave();
+                break;
+            case "HIGHLIGHT":
+                if (arguments.length != 2){
+                    System.out.println("Invalid input format");
+                    break;
+                }
+                highlight(arguments[1]);
+                break;
+            default:
+                System.out.println("Unknown command. Type 'HELP' to see a list of possible commands.");
+        }
+    }
+
     private static void movePiece(String startSquare,String endSquare){
         ChessPiece.PieceType promotionPiece = null;
         ChessPosition startPosition = getPosition(startSquare);
@@ -389,11 +471,15 @@ public class ClientUI {
             }
         }
         try {
-            currentGame.game().makeMove(new ChessMove(startPosition, endPosition, promotionPiece));
+            ChessMove move = new ChessMove(startPosition, endPosition, promotionPiece);
+            currentGame.game().makeMove(move);
             new DrawBoard(currentGame.game().getBoard(), isBlack, null, null);
+            wsf.makeMove(authToken, currentGame.gameID(), move);
         }
         catch(InvalidMoveException e){
             System.out.println("Invalid move. Please give it another go.");
+        } catch (ResponseException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -413,23 +499,29 @@ public class ClientUI {
     }
 
     private static void leave(){
-        //wsf.leave(authToken, currentGame.gameID());
-        System.out.println("Leaving game");
-        isInGameplay = false;
+        try{
+            System.out.println("Leaving game");
+            wsf.leave(authToken, currentGame.gameID());
+            isInGameplay = false;
+            isObserving = false;
+        } catch (ResponseException e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 
     private static void resign(){
         System.out.println("Are you sure you want to admit defeat? (Y/N)");
         String input = SCANNER.nextLine().toUpperCase();
         if (input.equals("Y")){
-            System.out.println("This is where resigning should happen");
-        }
-        else if (input.equals("N")){
-            return;
-        }
-        else{
+            try {
+                System.out.println("Resigning...");
+                wsf.resign(authToken, currentGame.gameID());
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        } else if (!input.equals("N")) {
             System.out.println("Invalid input.");
-            resign();
         }
     }
 

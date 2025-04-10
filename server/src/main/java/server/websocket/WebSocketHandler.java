@@ -56,7 +56,7 @@ public class WebSocketHandler {
                 message = "Player " + username + " has joined as an OBSERVER.";
             }
             connections.broadcast(username, new NotificationMessage(message));
-            connections.broadcastGame(new LoadGameMessage(gameData));
+            //connections.broadcastGame(new LoadGameMessage(gameData));
 
         } catch (Exception e) {
             sendError(session, "Error: " + e.getMessage());
@@ -66,12 +66,33 @@ public class WebSocketHandler {
     private void leave(UserGameCommand command, Session session){
         try {
             String username = userService.getUsername(command.getAuthToken());
+            GameData gameData = gameService.getGame(command.getGameID());
+            GameData newGame = getGameData(username, gameData);
+            gameService.update(command.getGameID(), newGame)
             connections.remove(username);
             String message = "Player " + username + " has left the game. They will be missed dearly.";
             connections.broadcast(username, new NotificationMessage(message));
         } catch (Exception e) {
             sendError(session, "Error: " + e.getMessage());
         }
+    }
+
+    private static GameData getGameData(String username, GameData gameData) {
+        GameData newGame;
+        if (username.equals(gameData.whiteUsername())){
+            newGame =  new GameData(gameData.gameID(), null , gameData.blackUsername(),
+                    gameData.gameName(), gameData.game());
+        }
+        else if (username.equals(gameData.blackUsername())){
+            newGame =  new GameData(gameData.gameID(), gameData.whiteUsername(),  null,
+                    gameData.gameName(), gameData.game());
+        }
+        else{
+            newGame = new GameData(gameData.gameID(), gameData.whiteUsername(),  gameData.blackUsername(),
+                    gameData.gameName(), gameData.game());
+
+        }
+        return newGame;
     }
 
     private void resign(UserGameCommand command, Session session){
