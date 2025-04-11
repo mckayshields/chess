@@ -61,6 +61,7 @@ public class DrawBoard {
             out.println();
         }
         makeHeader(out);
+        System.out.print("\u001B[39m");
     }
 
     String getUnicode(ChessPiece piece){

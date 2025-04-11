@@ -29,7 +29,10 @@ public class ClientUI {
         ServerMessageHandler serverMessageHandler = new ServerMessageHandler() {
             @Override
             public void notify(NotificationMessage notificationMessage) {
-                System.out.println(SET_BG_COLOR_BLUE + notificationMessage.getMessage());
+                System.out.println(SET_TEXT_COLOR_BLUE + notificationMessage.getMessage());
+                System.out.print("\u001B[49m");
+                System.out.print("\u001B[39m");
+                System.out.print(getHeader());
             }
 
             @Override
@@ -43,7 +46,10 @@ public class ClientUI {
 
             @Override
             public void error(ErrorMessage errorMessage) {
-                System.out.println(SET_BG_COLOR_RED + errorMessage.getErrorMessage());
+                System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage());
+                System.out.print("\u001B[49m");
+                System.out.print("\u001B[39m");
+                System.out.print(getHeader());
             }
         };
         try {

@@ -162,8 +162,10 @@ public class WebSocketHandler {
             gameData.game().makeMove(move);
 
             gameService.update(gameID, gameData);
-            String message = "Player " + username + " has moved their " + piece + " from " + startPosition.toString()
-                    + " to " + endPosition.toString();
+            String startString = positionToString(startPosition);
+            String endString = positionToString(endPosition);
+            String message = "Player " + username + " has moved their " + piece + " from " + startString
+                    + " to " + endString;
             connections.broadcast(username, new NotificationMessage(message), command.getGameID());
             connections.broadcastGame(new LoadGameMessage(gameData));
             if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)){
@@ -208,5 +210,14 @@ public class WebSocketHandler {
         } catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
+
+    public String positionToString(ChessPosition position){
+        int row = position.getRow();
+        int col = position.getColumn();
+        char colChar = (char) ('a' + col - 1);
+        String colString = String.valueOf(colChar);
+        String rowString = Integer.toString(row);
+        return (colString + rowString);
     }
 }
