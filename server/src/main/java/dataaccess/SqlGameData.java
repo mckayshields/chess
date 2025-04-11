@@ -4,17 +4,17 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class SqlGameData implements GameDataAccess{
-    private int gameCount =0;
 
     public SqlGameData() throws DataAccessException {
         String[] createStatements = {
-                """
+            """
             CREATE TABLE IF NOT EXISTS gameData (
-              `gameID` int NOT NULL,
+              `gameID` int NOT NULL AUTO_INCREMENT,
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
@@ -31,16 +31,20 @@ public class SqlGameData implements GameDataAccess{
         try(var conn = DatabaseManager.getConnection()){
 
             var statement = "INSERT INTO " +
-                    "gameData (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
-            try(var ps = conn.prepareStatement(statement)){
-                gameCount++;
-                ps.setInt(1, gameCount);
+                    "gameData (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+            try(var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)){
+                ps.setString(1, null);
                 ps.setString(2, null);
-                ps.setString(3, null);
-                ps.setString(4, gameName);
-                ps.setString(5, gameToString(new ChessGame()));
+                ps.setString(3, gameName);
+                ps.setString(4, gameToString(new ChessGame()));
                 ps.executeUpdate();
-                return gameCount;
+                var rs = ps.getGeneratedKeys();
+                if (rs.next()){
+                    return rs.getInt(1);
+                }
+                else{
+                    return 0;
+                }
             }
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());

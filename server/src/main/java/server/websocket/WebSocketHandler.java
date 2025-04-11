@@ -148,56 +148,63 @@ public class WebSocketHandler {
             ChessPosition endPosition = move.getEndPosition();
             GameData gameData = gameService.getGame(gameID);
             ChessGame.TeamColor turnColor = gameData.game().getTeamTurn();
-            ChessGame.TeamColor requestcolor = null;
+            ChessGame.TeamColor requestColor = null;
             if (username.equals(gameData.whiteUsername())){
-                requestcolor = ChessGame.TeamColor.WHITE;
+                requestColor = ChessGame.TeamColor.WHITE;
             } else if (username.equals(gameData.blackUsername())) {
-                requestcolor = ChessGame.TeamColor.BLACK;
+                requestColor = ChessGame.TeamColor.BLACK;
             }
-            if (turnColor != requestcolor){
+            if (turnColor != requestColor){
                 sendError(session, "Error: You cannot make moves at this time.");
                 return;
             }
             String piece = gameData.game().getBoard().getPiece(startPosition).getPieceType().toString();
             gameData.game().makeMove(move);
-
             gameService.update(gameID, gameData);
             String startString = positionToString(startPosition);
             String endString = positionToString(endPosition);
             String message = "Player " + username + " has moved their " + piece + " from " + startString
                     + " to " + endString;
-            connections.broadcast(username, new NotificationMessage(message), command.getGameID());
-            connections.broadcastGame(new LoadGameMessage(gameData));
-            if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)){
+            System.out.println("METHOD CHECK");
+            boolean whiteCheck = gameData.game().isInCheck(ChessGame.TeamColor.WHITE);
+            boolean blackCheck = gameData.game().isInCheck(ChessGame.TeamColor.BLACK);
+            boolean whiteCheckmate = gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE);
+            boolean blackCheckmate = gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK);
+            boolean whiteStalemate = gameData.game().isInStalemate(ChessGame.TeamColor.WHITE);
+            boolean blackStalemate = gameData.game().isInStalemate(ChessGame.TeamColor.BLACK);
+            if (whiteCheckmate){
                 connections.broadcast(null,
                         new NotificationMessage(gameData.whiteUsername() +
                                 " (WHITE) is in checkmate."), command.getGameID());
             }
-            else if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)){
+            else if(blackCheckmate){
                 connections.broadcast(null,
                         new NotificationMessage(gameData.blackUsername() +
                                 " (BLACK) is in checkmate."), command.getGameID());
             }
-            else if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)){
+            else if(whiteCheck){
                 connections.broadcast(null,
                         new NotificationMessage(gameData.whiteUsername() +
                                 " (WHITE) is in check."), command.getGameID());
             }
-            else if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)){
+            else if(blackCheck){
                 connections.broadcast(null,
                         new NotificationMessage(gameData.blackUsername() +
                                 " (BLACK) is in check."), command.getGameID());
             }
-            if (gameData.game().isInStalemate(ChessGame.TeamColor.WHITE)){
+
+            if (whiteStalemate){
                 connections.broadcast(null,
                         new NotificationMessage(gameData.whiteUsername() +
                                 " (WHITE) is in stalemate."), command.getGameID());
             }
-            if (gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)){
+            if (blackStalemate){
                 connections.broadcast(null,
                         new NotificationMessage(gameData.blackUsername() +
                                 " (BLACK) is in stalemate."), command.getGameID());
             }
+            connections.broadcast(username, new NotificationMessage(message), command.getGameID());
+            connections.broadcastGame(new LoadGameMessage(gameData));
         } catch (Exception e){
             sendError(session, "Error: " + e.getMessage());
         }
