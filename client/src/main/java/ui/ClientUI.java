@@ -56,8 +56,7 @@ public class ClientUI {
             wsf = new WebSocketFacade(url, serverMessageHandler);
         }catch (ResponseException e){
             System.out.println(e.getMessage());
-        }
-    }
+        }}
     public void run() throws ResponseException {
         System.out.println("♕ Welcome to 240 Chess. We're happy you are here. ♕");
         System.out.println("Type 'help' to get started.");
@@ -93,8 +92,7 @@ public class ClientUI {
     private static void beforeLogin(String input){
         String[] arguments = input.split("\\s+");
         if (arguments.length == 0){
-            return;
-        }
+            return;}
         String inputCommand = arguments[0].toUpperCase();
         switch (inputCommand){
             case "HELP":
@@ -220,8 +218,7 @@ public class ClientUI {
                 redraw - display the chessboard again
                 leave - remove self from game
                 highlight <PIECE SQUARE> - see legal moves for a given piece
-                """);
-        }
+                """);}
         else if (isLoggedIn){
             System.out.println("""
                 create <NAME> - start new game
@@ -231,8 +228,7 @@ public class ClientUI {
                 logout - when you are done
                 quit - exit the chess client
                 help - show possible commands
-                """);
-        }
+                """);}
         else{System.out.println("""
                 register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                 login <USERNAME> <PASSWORD> - to play chess
@@ -349,43 +345,37 @@ public class ClientUI {
             case "HELP":
                 if (arguments.length != 1){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 displayHelpMenu();
                 break;
             case "REDRAW":
                 if (arguments.length != 1){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 redraw();
                 break;
             case "LEAVE":
                 if (arguments.length != 1){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 leave();
                 break;
             case "MOVE":
                 if (arguments.length != 3){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 movePiece(arguments[1], arguments[2]);
                 break;
             case "RESIGN":
                 if (arguments.length != 1){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 resign();
                 break;
             case "HIGHLIGHT":
                 if (arguments.length != 2){
                     System.out.println("Invalid input format");
-                    break;
-                }
+                    break;}
                 highlight(arguments[1]);
                 break;
             default:

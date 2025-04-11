@@ -87,7 +87,7 @@ public class WebSocketHandler {
             GameData newGame = getGameData(username, gameData);
             gameService.update(command.getGameID(), newGame);
             connections.remove(username);
-            String message = "Player " + username + " has left the game. They will be missed dearly.";
+            String message = username + " has left the game. They will be missed dearly.";
             connections.broadcast(username, new NotificationMessage(message), command.getGameID());
         } catch (Exception e) {
             sendError(session, "Error: " + e.getMessage());
@@ -164,8 +164,9 @@ public class WebSocketHandler {
             String startString = positionToString(startPosition);
             String endString = positionToString(endPosition);
             String message = "Player " + username + " has moved their " + piece + " from " + startString
-                    + " to " + endString;
-            System.out.println("METHOD CHECK");
+                    + " to " + endString +".";
+            connections.broadcast(username, new NotificationMessage(message), command.getGameID());
+            connections.broadcastGame(new LoadGameMessage(gameData));
             boolean whiteCheck = gameData.game().isInCheck(ChessGame.TeamColor.WHITE);
             boolean blackCheck = gameData.game().isInCheck(ChessGame.TeamColor.BLACK);
             boolean whiteCheckmate = gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE);
@@ -203,8 +204,6 @@ public class WebSocketHandler {
                         new NotificationMessage(gameData.blackUsername() +
                                 " (BLACK) is in stalemate."), command.getGameID());
             }
-            connections.broadcast(username, new NotificationMessage(message), command.getGameID());
-            connections.broadcastGame(new LoadGameMessage(gameData));
         } catch (Exception e){
             sendError(session, "Error: " + e.getMessage());
         }
